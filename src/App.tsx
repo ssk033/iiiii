@@ -1,7 +1,8 @@
 function App() {
   return (
     <>
-    <div> Ye college randin hai , hack karke dikhao idli dose saale </div>
+    <img src="https://dschack.vercel.app/download.jpeg" alt="" />
+    <div> Ye college randi hai , hack karke dikhao idli dose saale </div>
     </>
   )
 }
