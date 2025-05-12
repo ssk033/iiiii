@@ -1,5 +1,4 @@
-binarysearchtree.c     recursivebinarysearch.c    circularqueue.c
-patternmatching.c      selectionsort.c            doublylinkedlist.c
-polynomialadd.c        stackimplementation.c      graph.c
-polynomials.c          transpose.c                heap.c
-postfixevaluation.c    infixtopostfix.c           queueimplementation.c
+CountInversions.java       KruskalAlgo.java        QuickSort.java
+                  MergesortAlgo.java      TopoSort.java
+GaleShapleyUserInput.java       PrimsUsingAdjList.java  
+
