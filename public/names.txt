@@ -1,5 +1,4 @@
-CountInversions.java       KruskalAlgo.java        QuickSort.java
-                  MergesortAlgo.java      TopoSort.java
-GaleShapleyUserInput.java       PrimsUsingAdjList.java 
-Dijkstra.java     
+Dijkstraalgo.java  inversion.java  mergesort.java  prims.java      toposort.java
+galeshapely.java   kruskals.java   quicksort.java
+
 
