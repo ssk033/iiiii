@@ -1,4 +1,0 @@
-Dijkstraalgo.java  inversion.java  mergesort.java  prims.java      toposort.java
-galeshapely.java   kruskals.java   quicksort.java
-
-
