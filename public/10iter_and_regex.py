@@ -1,36 +1,28 @@
-# a. Demonstrate use of iter() and next() until StopIteration
-def manual_iteration():
-    sample_list = [10, 20, 30, 40, 50]
-    iterator = iter(sample_list)
+# 1. Demonstrate iter() and next() with exception handling
+print("Using iter() and next() to iterate manually:")
+my_iter = iter([1, 2, 3, 4, 5])
+while True:
+    try:
+        print(next(my_iter))
+    except StopIteration:
+        break
 
-    print("Iterating through the list manually using next():")
-    while True:
-        try:
-            item = next(iterator)
-            print(item)
-        except StopIteration:
-            print("Reached the end of the iterator.")
-            break
+print("\nExtracting phone numbers from text:")
 
-# b. Extract phone numbers from text
+# 2. Extract phone numbers using regex
 import re
 
 def extract_phone_numbers(text):
-    # Regex pattern for phone numbers in (123) 456-7890 or 123-456-7890 format
-    pattern = r'\(?\d{3}\)?[\s-]?\d{3}-\d{4}'
-    matches = re.findall(pattern, text)
-    print("Extracted phone numbers:")
-    for match in matches:
-        print(match)
+    phone_regex = re.compile(r"\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}")
+    phone_numbers = re.findall(phone_regex, text)
+    return phone_numbers
 
-# Test both functions
-if __name__ == "__main__":
-    print("----- Part A: Iterator Demo -----")
-    manual_iteration()
+text = """
+Here are some phone numbers:
+(123) 456-7890, 123-456-7890, 987.654.3210, 555 123 4567, (111)2223333
+"""
 
-    print("\n----- Part B: Phone Number Extraction -----")
-    test_text = """
-    You can reach John at (123) 456-7890 or his office number 987-654-3210.
-    Also, call the support line at (555)123-4567 or 444-555-6666.
-    """
-    extract_phone_numbers(test_text)
+numbers = extract_phone_numbers(text)
+print("Extracted phone numbers:")
+for number in numbers:
+    print(number)
