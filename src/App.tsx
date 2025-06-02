@@ -1,10 +1,9 @@
 function App() {
   return (
     <>
-    <img src="https://dschack.vercel.app/download.jpeg" alt="" />
-    <div> Ye college randi hai , hack karke dikhao idli dose saale </div>
+      <h1>Hello, world!</h1>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
