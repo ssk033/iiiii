@@ -1,0 +1,5 @@
+bellman.java
+knapsack.java
+nqueen.java
+subset.java
+weighted.java
