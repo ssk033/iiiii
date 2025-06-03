@@ -1,5 +1,7 @@
-bellman.java
-knapsack.java
-nqueen.java
-subset.java
-weighted.java
+2nodes.cc
+3nodes.cc
+4nodes.cc
+ess.cc
+infra.cc
+tcpudp.cc
+variants.cc
