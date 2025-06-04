@@ -65,28 +65,6 @@ using namespace ns3;
 
 NS_LOG_COMPONENT_DEFINE("TrafficControlExample");
 
-/**
- * Number of packets in TX queue trace.
- *
- * \param oldValue Old velue.
- * \param newValue New value.
- */
-
-/**
- * Packets in the device queue trace.
- *
- * \param oldValue Old velue.
- * \param newValue New value.
- */
-
-
-/**
- * TC Soujoun time trace.
- *
- * \param sojournTime The soujourn time.
- */
-
-
 int
 main(int argc, char* argv[])
 {
@@ -108,23 +86,27 @@ main(int argc, char* argv[])
     }
 
     NodeContainer nodes;
-    nodes.Create(2);
+    nodes.Create(3);
 
     PointToPointHelper pointToPoint;
     pointToPoint.SetDeviceAttribute("DataRate", StringValue("10Mbps"));
     pointToPoint.SetChannelAttribute("Delay", StringValue("2ms"));
     pointToPoint.SetQueue("ns3::DropTailQueue", "MaxSize", StringValue("1p"));
 
-    NetDeviceContainer devices;
-    devices = pointToPoint.Install(nodes);
+    NetDeviceContainer devices01,devices12;
+    devices01 = pointToPoint.Install(nodes.Get(0),nodes.Get(1));
+    devices12 = pointToPoint.Install(nodes.Get(1),nodes.Get(2));
 
     InternetStackHelper stack;
     stack.Install(nodes);
 
     Ipv4AddressHelper address;
     address.SetBase("10.1.1.0", "255.255.255.0");
+    Ipv4InterfaceContainer interfaces01 = address.Assign(devices01);
+    address.SetBase("10.1.2.0", "255.255.255.0");
+    Ipv4InterfaceContainer interfaces12 = address.Assign(devices12);
 
-    Ipv4InterfaceContainer interfaces = address.Assign(devices);
+      Ipv4GlobalRoutingHelper::PopulateRoutingTables();
 
     // Flow
     uint16_t port = 7;
@@ -145,11 +127,11 @@ main(int argc, char* argv[])
     onoff.SetAttribute("DataRate", StringValue("50Mbps")); // bit/s
     ApplicationContainer apps;
 
-    InetSocketAddress rmt(interfaces.GetAddress(0), port);
+    InetSocketAddress rmt(interfaces12.GetAddress(1), port);
     rmt.SetTos(0xb8);
     AddressValue remoteAddress(rmt);
     onoff.SetAttribute("Remote", remoteAddress);
-    apps.Add(onoff.Install(nodes.Get(1)));
+    apps.Add(onoff.Install(nodes.Get(0)));
     apps.Start(Seconds(1.0));
     apps.Stop(Seconds(simulationTime + 0.1));
 
@@ -181,9 +163,6 @@ main(int argc, char* argv[])
     }
     std::cout << "  Packets/Bytes Dropped by Queue Disc:   " << packetsDroppedByQueueDisc << " / "
               << bytesDroppedByQueueDisc << std::endl;
-  
     Simulator::Destroy();
-
-
     return 0;
 }
