@@ -1,0 +1,15 @@
+bellman.java  
+inversion.java  
+mergesort.java  
+quicksort.java  
+tsp.java  
+Dijkstra.java  
+knapsack.java  
+NQueens.java  
+subset.java  
+Weighted.java  
+galeshapely.java  
+kruskals.java  
+prims.java  
+TopoSort.java  
+
