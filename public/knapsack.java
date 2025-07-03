@@ -1,13 +1,17 @@
 import java.util.Scanner;
 
 public class knapsack {
-    public static int Knapsack(int[] weights, int[] values, int n, int capacity) {
+    public static int Knapsack(int[] weights, int[] values, int n, int capacity) 
+    {
         int[][] dp = new int[n + 1][capacity + 1];
 
         // Build DP table
-        for (int i = 1; i <= n; i++) {
-            for (int w = 1; w <= capacity; w++) {
-                if (weights[i - 1] <= w) {
+        for (int i = 1; i <= n; i++) 
+        {
+            for (int w = 1; w <= capacity; w++) 
+            {
+                if (weights[i - 1] <= w) 
+                {
                     dp[i][w] = Math.max(
                         values[i - 1] + dp[i - 1][w - weights[i - 1]],
                         dp[i - 1][w]
@@ -21,8 +25,10 @@ public class knapsack {
         // Backtrack to find picked items
         int w = capacity;
         System.out.println("\nItems included in the knapsack:");
-        for (int i = n; i > 0 && w > 0; i--) {
-            if (dp[i][w] != dp[i - 1][w]) {
+        for (int i = n; i > 0 && w > 0; i--) 
+        {
+            if (dp[i][w] != dp[i - 1][w]) 
+            {
                 System.out.println("Item " + i + " (Value: " + values[i - 1] + ", Weight: " + weights[i - 1] + ")");
                 w -= weights[i - 1]; // reduce weight capacity
             }

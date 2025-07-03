@@ -26,10 +26,11 @@ public class galeshapely {
 
         int freeCount = N;
 
-        while (freeCount > 0) {
+        while (freeCount > 0) 
+        {
             int m;
             for (m = 0; m < N; m++)
-                if (!manFree[m])
+                 if (!manFree[m])//means manfree[m]==False
                     break;
 
             for (int i = 0; i < N && !manFree[m]; i++) 
@@ -45,7 +46,8 @@ public class galeshapely {
                 else 
                 {
                     int m1 = womanPartner[w];
-                    if (prefersNewProposal(womenPref, w, m, m1)) {
+                    if (prefersNewProposal(womenPref, w, m, m1)) 
+                    {
                         womanPartner[w] = m;
                         manFree[m] = true;
                         manFree[m1] = false;
@@ -53,10 +55,7 @@ public class galeshapely {
                 }
             }
         }
-        for (int i = 0; i < N; i++){
-            
-        }
-
+      
         // Output the stable pairs
         System.out.println("\nFinal Stable Matches:");
         System.out.println("Woman   Man");

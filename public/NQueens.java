@@ -31,7 +31,8 @@ public class NQueens {
         }
 
         System.out.println("Queen Coordinates (row, col):");
-        for (int col = 0; col < N; col++) {
+        for (int col = 0; col < N; col++) 
+        {
             System.out.println("Q at (" + queens[col] + ", " + col + ")");
         }
         System.out.println("------------------------------------------------");
@@ -39,7 +40,8 @@ public class NQueens {
 
     // Recursive N-Queens solver
     public static void solveNQ(int[] queens, int col) {
-        if (col == N) {
+        if (col == N) 
+        {
             solutionCount++;
             System.out.println("Solution " + solutionCount + ":");
             printBoard(queens);

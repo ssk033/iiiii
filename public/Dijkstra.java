@@ -14,12 +14,14 @@ public class Dijkstra {
         }
 
         // This method ensures that the priority queue orders pairs by distance
-        public int compareTo(Pair other) {
+        public int compareTo(Pair other) 
+        {
             return this.dist - other.dist;
         }
     }
 
-    static int[] dijkstra(int V, ArrayList<ArrayList<ArrayList<Integer>>> adj, int S) {
+    static int[] dijkstra(int V, ArrayList<ArrayList<ArrayList<Integer>>> adj, int S) 
+    {
         int[] dist = new int[V];
         Arrays.fill(dist, Integer.MAX_VALUE);
         dist[S] = 0;
@@ -27,17 +29,20 @@ public class Dijkstra {
         PriorityQueue<Pair> pq = new PriorityQueue<>();
         pq.offer(new Pair(S, 0));
 
-        while (!pq.isEmpty()) {
+        while (!pq.isEmpty()) 
+        {
             Pair current = pq.poll();
             int u = current.vertex;
             int d = current.dist;
 
             if (d > dist[u]) continue;
 
-            for (ArrayList<Integer> neighbor : adj.get(u)) {
+            for (ArrayList<Integer> neighbor : adj.get(u)) 
+            {
                 int v = neighbor.get(0);
                 int wt = neighbor.get(1);
-                if (dist[u] + wt < dist[v]) {
+                if (dist[u] + wt < dist[v]) 
+                {
                     dist[v] = dist[u] + wt;
                     pq.offer(new Pair(v, dist[v]));
                 }
@@ -57,7 +62,8 @@ public class Dijkstra {
         int E = sc.nextInt();
 
         ArrayList<ArrayList<ArrayList<Integer>>> adj = new ArrayList<>();
-        for (int i = 0; i < V; i++) {
+        for (int i = 0; i < V; i++) 
+        {
             adj.add(new ArrayList<>());
         }
 
