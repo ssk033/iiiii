@@ -5,7 +5,7 @@ quicksort.java
 tsp.java  
 dijkstra.java  
 knapsack.java  
-NQueens.java  
+nqueens.java  
 subset.java  
 weighted.java  
 galeshapely.java  
