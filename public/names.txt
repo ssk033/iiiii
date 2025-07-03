@@ -11,5 +11,7 @@ Weighted.java
 galeshapely.java  
 kruskals.java  
 prims.java  
-TopoSort.java  
+TopoSort.java
+bellman1.java
+galeshapely1.java  
 
