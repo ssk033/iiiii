@@ -1,6 +1,6 @@
 import java.util.*;
 
-public class NQueens {
+public class nqueens {
     static int N;
     static int solutionCount = 0;
 

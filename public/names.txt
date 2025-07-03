@@ -3,15 +3,15 @@ inversion.java
 mergesort.java  
 quicksort.java  
 tsp.java  
-Dijkstra.java  
+dijkstra.java  
 knapsack.java  
 NQueens.java  
 subset.java  
-Weighted.java  
+weighted.java  
 galeshapely.java  
 kruskals.java  
 prims.java  
-TopoSort.java
+toposort.java
 bellman1.java
 galeshapely1.java  
 

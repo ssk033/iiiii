@@ -1,6 +1,6 @@
 import java.util.*;
 
-public class Dijkstra {
+public class dijkstra {
 
     static class Pair implements Comparable<Pair> 
     {
@@ -20,7 +20,7 @@ public class Dijkstra {
         }
     }
 
-    static int[] dijkstra(int V, ArrayList<ArrayList<ArrayList<Integer>>> adj, int S) 
+    static int[] diijkstra(int V, ArrayList<ArrayList<ArrayList<Integer>>> adj, int S) 
     {
         int[] dist = new int[V];
         Arrays.fill(dist, Integer.MAX_VALUE);
@@ -81,7 +81,7 @@ public class Dijkstra {
         System.out.print("Enter source vertex: ");
         int S = sc.nextInt();
 
-        int[] dist = dijkstra(V, adj, S);
+        int[] dist = diijkstra(V, adj, S);
 
         System.out.println("Shortest distances from source:");
         for (int i = 0; i < V; i++) {
