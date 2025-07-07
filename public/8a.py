@@ -33,6 +33,7 @@ print("Updated Price:", lp.get_price())
 # ---------------------------------------------
 # Part ii: Abstract Shape Class and Subclasses
 # ---------------------------------------------
+from abc import ABC, abstractmethod
 class Shape(ABC):
     @abstractmethod
     def area(self):

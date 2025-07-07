@@ -6,7 +6,8 @@ incon = df.groupby("item_name")["item_price"].nunique()
 print(incon[incon > 1])
 
 # ii. Convert item_price to float
-df["item_price"] = df["item_price"].replace('[\$,]', '', regex=True).astype(float)
+df["item_price"] = df["item_price"].replace(r'[\$,]', '', regex=True).astype(float)
+
 
 # iii. Average price per item
 print(df.groupby("item_name")["item_price"].mean())

@@ -1,6 +1,6 @@
 # Part i: Stop loop on negative number using break
-lst = [1, 2, 3, 4, 5, 6, 6, -6, 7, 7, 7, 7, 7]
-for i in lst:
+list = [1, 2, 3, 4, 5, 6, 6, -6, 7, 7, 7, 7, 7]
+for i in list:
     if i < 0:
         break
     else:
