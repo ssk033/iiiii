@@ -1,0 +1,37 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>User Form</title>
+
+<script type="text/javascript">
+//<![CDATA[
+function req(f){ if(f.value==""){ alert(f.name+" required"); return false;} return true; }
+function age(a){ if(a<=17){ alert("Age must be greater than 17"); return false;} return true; }
+function wt(w){ if(w<45||w>75){ alert("Weight must be 45-75"); return false;} return true; }
+//]]>
+</script>
+</head>
+
+<body>
+<form onsubmit="return age(age1.value) &amp;&amp; wt(wt1.value);">
+
+First Name:
+<input type="text" name="First Name" onblur="req(this)" /><br />
+
+Middle Initial:
+<input type="text" maxlength="1" /><br />
+
+Last Name:
+<input type="text" name="Last Name" onblur="req(this)" /><br />
+
+Age:
+<input type="text" name="age1" onblur="age(this.value)" /><br />
+
+Weight:
+<input type="text" name="wt1" onblur="wt(this.value)" /><br />
+
+<input type="submit" value="Submit" />
+</form>
+</body>
+</html>

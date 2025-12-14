@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<input id="s" >
+<button onclick="go()">Check</button>
+<p id="out"></p>
+
+<script>
+const notBad = str => {
+  let n = str.indexOf("not"),
+      b = str.indexOf("bad");
+  return n != -1 && b > n
+    ? str.slice(0, n) + "good" + str.slice(b + 3)
+    : str;
+};
+
+const go = () => out.innerText = notBad(s.value);
+</script>
+
+</body>
+</html>

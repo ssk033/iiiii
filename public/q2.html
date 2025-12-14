@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<input id="m" >
+<button onclick="go()">Convert</button>
+<p id="output"></p>
+
+<script>
+const getMonth = (() => {
+  const months = ["January","February","March","April","May","June",
+                  "July","August","September","October","November","December"];
+  return n => {
+    n = Math.floor(+n);
+    return n >= 1 && n <= 12 ? months[n - 1] : "Bad Number";
+  };
+})();
+
+const go = () =>
+  output.innerText = getMonth(m.value);
+</script>
+
+</body>
+</html>
