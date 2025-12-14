@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>Hospital Bed Management</h2>
+
+<form action="/hospitals" method="POST">
+  <input name="hid" placeholder="Hospital ID" required>
+  <input name="name" placeholder="Name" required>
+  <input name="location" placeholder="Location" required>
+  <input name="total" placeholder="Total Beds" required>
+  <input name="occupied" placeholder="Occupied Beds" required>
+  <button>Add</button>
+</form>
+
+<hr>
+
+<form action="/hospitals/admit" method="POST">
+  <input name="hid" placeholder="Hospital ID" required>
+  <button>Admit Patient</button>
+</form>
+
+<hr>
+
+<button onclick="load()">Hospitals with &lt; 10 Beds</button>
+<ul id="list"></ul>
+
+<script>
+const load = () =>
+  fetch("/hospitals/lowbeds").then(r=>r.json())
+  .then(d=>list.innerHTML=d.map(h=>
+    `<li>${h.Name} (${h.Location}) | Available: ${h.Total_Beds-h.Occupied_Beds}</li>`
+  ).join(""));
+</script>
+
+</body>
+</html>

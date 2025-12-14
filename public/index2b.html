@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>Student Exam Fee</h2>
+
+<form action="/students" method="POST">
+  <input name="name" placeholder="Name" required>
+  <input name="usn" placeholder="USN" required>
+  <input name="sem" placeholder="Semester" required>
+  <input name="fee" placeholder="Exam Fee">
+  <button>Add</button>
+</form>
+
+<hr>
+
+<button onclick="del()">Delete Fee = 0</button>
+<button onclick="load()">Show Students</button>
+
+<ul id="list"></ul>
+
+<script>
+const load = () =>
+  fetch("/students").then(r=>r.json())
+  .then(d=>list.innerHTML=d.map(s=>
+    `<li>${s.Student_name} | ${s.USN} | Sem ${s.Semester} | Fee ${s.Exam_fee}</li>`
+  ).join(""));
+
+const del = () =>
+  fetch("/students/unpaid",{method:"DELETE"})
+  .then(r=>r.json()).then(a=>alert(a.message));
+</script>
+
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>Internship Tracking</h2>
+
+<form action="/internships" method="POST">
+  <input name="sid" placeholder="Student ID" required>
+  <input name="name" placeholder="Name" required>
+  <input name="company" placeholder="Company" required>
+  <input name="duration" placeholder="Duration" required>
+  <input name="status" value="Ongoing">
+  <button>Add</button>
+</form>
+
+<hr>
+
+<input id="id" placeholder="Internship ID">
+<select id="st">
+  <option>Ongoing</option>
+  <option>Completed</option>
+</select>
+<button onclick="update()">Update</button>
+
+<hr>
+
+<button onclick="load()">Show Infosys Interns</button>
+<ul id="list"></ul>
+
+<script>
+const load = () =>
+  fetch("/internships/infosys").then(r=>r.json())
+  .then(d=>list.innerHTML=d.map(i=>
+    `<li>${i._id} | ${i.Student_ID} | ${i.Name} | ${i.Duration} | ${i.Status}</li>`
+  ).join(""));
+
+const update = () =>
+  fetch("/internships/"+id.value,{
+    method:"PUT",
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({status:st.value})
+  }).then(r=>r.json()).then(a=>alert(a.message));
+</script>
+
+</body>
+</html>
