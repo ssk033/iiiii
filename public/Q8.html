@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Form</title>
+</head>
+<body>
+    <h1>Student Details</h1>
+    <form action="#" onsubmit="return validate()">
+        Last Name:
+        <input type="text" name="" id="lname">
+        <br>
+        <br>
+        First Name:
+        <input type="text" id="fname">
+        <br>
+        <br>
+        Middle Name:
+        <input type="text" id="mi" onchange="checkmid()">
+        <br><br>
+        Age:
+        <input type="number" id="age" onchange="checkAge()">
+        <br><br>
+        Weight:
+        <input type="number" id="wt" onchange="checkWeight()">
+        <br>
+        <br>
+        <button type="submit">Submit</button>
+    </form>
+
+    <script>
+        function checkAge(){
+            var age = document.getElementById("age").value;
+            if(age <= 17){
+                alert("age must be greater than 17");
+                document.getElementById("age").value = "";
+            }
+        }
+
+        function checkmid(){
+            var mid = document.getElementById("mi").value;
+            if(mid.length > 1){
+                alert("middle name has only 1 character");
+                 document.getElementById("mi").value = "";
+            }
+        }
+
+        function checkWeight(){
+            var weight = document.getElementById("wt").value;
+            if(weight <45 || weight>75){
+                alert("Weight must be between 45 and 75");
+                document.getElementById("wt").value = "";
+            }
+        }
+
+        function validate(){
+            if(
+                document.getElementById("fname").value === "" ||
+                document.getElementById("lname").value === ""
+            ){
+                alert("First and last name cannot be empty");
+            
+            }
+            else{
+            alert("Form submitted successfully");
+            }
+            window.location.reload();
+            return true;
+            
+        }
+    </script>
+</body>
+</html>

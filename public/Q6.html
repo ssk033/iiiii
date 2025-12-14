@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h3>notBad() Fixer</h3>
+
+    Enter the sentence:
+    <br><br>
+    <input type="text" id="text" width="300px">
+
+    <button onclick="runNotbad()">Submit</button>
+
+    <p><strong>Output:</strong></p>
+    <p id="result"></p>
+
+   <script>
+     function notBad(str)
+    {
+        let notIndex = str.indexOf("not");
+        let badIndex = str.indexOf("bad");
+
+        if(notIndex !== -1 && badIndex !== -1 && badIndex>notIndex)
+    {
+        return str.slice(0,notIndex) + "good" + str.slice(badIndex + 3);
+    }
+    else{
+        return str;
+    }
+    }
+
+    function runNotbad()
+    {
+        const input = document.getElementById("text").value;
+        const output = notBad(input);
+        document.getElementById("result").innerText = output;
+    }
+   </script>
+
+</body>
+</html>

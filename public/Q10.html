@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket booking</title>
+</head>
+<body>
+    <h2>Ticket Booking Counter</h2>
+    <button onclick="book()">Book</button>
+    <p id="output"></p>
+
+    <script>
+        function ticketCounter(){
+            let tickets = 0;
+            return function bookTickets(){
+                tickets++;
+                document.getElementById("output").innerHTML += "Tickets Booked. Total Tickets:" + tickets + "<br>";
+            };
+        }
+          let book = ticketCounter();
+    </script>
+</body>
+</html>
