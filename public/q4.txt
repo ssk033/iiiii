@@ -1,0 +1,139 @@
+// ===================================================
+// STEP 1: Create Project Folder
+// ===================================================
+
+// mkdir internship-system
+// cd internship-system
+
+
+// ===================================================
+// STEP 2: Initialize npm
+// ===================================================
+
+// npm init -y
+
+
+// ===================================================
+// STEP 3: Install Required Packages
+// ===================================================
+
+// npm install express
+// npm install mongodb
+// npm install mongoose
+
+
+// ===================================================
+// FILE 1 : app4.js
+// ===================================================
+
+const e = require("express");
+const { MongoClient, ObjectId } = require("mongodb");
+const p = require("path");
+
+const app = e();
+app.use(e.urlencoded({ extended: true }));
+app.use(e.json());
+
+let col;
+
+// MongoDB connection
+MongoClient.connect("mongodb://127.0.0.1:27017")
+  .then(c => {
+    col = c.db("internshipDB").collection("internships");
+    console.log("MongoDB connected");
+  });
+
+// Load HTML page
+app.get("/", (_, r) =>
+  r.sendFile(p.join(__dirname, "index4.html"))
+);
+
+// Insert internship details
+app.post("/internships", async (req, r) => {
+  await col.insertOne({
+    Student_ID: req.body.sid,
+    Name: req.body.name,
+    Company: req.body.company,
+    Duration: req.body.duration,
+    Status: req.body.status
+  });
+  r.redirect("/");
+});
+
+// Get interns working in Infosys
+app.get("/internships/infosys", async (_, r) =>
+  r.json(await col.find({ Company: "Infosys" }).toArray())
+);
+
+// Update internship status
+app.put("/internships/:id", async (req, r) => {
+  await col.updateOne(
+    { _id: new ObjectId(req.params.id) },
+    { $set: { Status: req.body.status } }
+  );
+  r.json({ message: "Status Updated" });
+});
+
+app.listen(3000, () =>
+  console.log("Server running on http://localhost:3000")
+);
+
+
+// ===================================================
+// FILE 2 : index4.html
+// ===================================================
+
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>Internship Tracking System</h2>
+
+<!-- Add internship -->
+<form action="/internships" method="POST">
+  <input name="sid" placeholder="Student ID" required>
+  <input name="name" placeholder="Student Name" required>
+  <input name="company" placeholder="Company" required>
+  <input name="duration" placeholder="Duration" required>
+  <input name="status" value="Ongoing">
+  <button>Add Internship</button>
+</form>
+
+<hr>
+
+<!-- Update internship status -->
+<input id="id" placeholder="Internship ID">
+<select id="st">
+  <option>Ongoing</option>
+  <option>Completed</option>
+</select>
+<button onclick="update()">Update Status</button>
+
+<hr>
+
+<!-- View Infosys interns -->
+<button onclick="load()">Show Infosys Interns</button>
+<ul id="list"></ul>
+
+<script>
+const load = () =>
+  fetch("/internships/infosys")
+    .then(r => r.json())
+    .then(d =>
+      list.innerHTML = d.map(i =>
+        `<li>${i._id} | ${i.Student_ID} | ${i.Name} | ${i.Duration} | ${i.Status}</li>`
+      ).join("")
+    );
+
+const update = () =>
+  fetch("/internships/" + id.value, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ status: st.value })
+  })
+  .then(r => r.json())
+  .then(a => alert(a.message));
+</script>
+
+</body>
+</html>

@@ -1,0 +1,129 @@
+// ===============================
+// make folder
+// ===============================
+// mkdir student-records
+// cd student-records
+
+// ===============================
+// npm init
+// ===============================
+// npm init -y
+
+// ===============================
+// install packages
+// ===============================
+// npm i express
+// npm install mongoose
+// npm install mongodb
+
+
+// ===============================
+// file 1 : app5.js
+// ===============================
+
+const express = require("express");
+const { MongoClient } = require("mongodb");
+const path = require("path");
+
+const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+let col;
+
+// MongoDB connection
+MongoClient.connect("mongodb://127.0.0.1:27017")
+  .then(c => {
+    col = c.db("studentDB").collection("students");
+    console.log("MongoDB connected");
+  });
+
+// Load HTML page
+app.get("/", (_, res) =>
+  res.sendFile(path.join(__dirname, "index1.html"))
+);
+
+// Insert student record
+app.post("/students", async (req, res) => {
+  await col.insertOne({
+    name: req.body.name,
+    usn: req.body.usn,
+    department: req.body.department,
+    grade: req.body.grade
+  });
+  res.redirect("/");
+});
+
+// Update grade by student name
+app.put("/students/:name", async (req, res) => {
+  await col.updateOne(
+    { name: req.params.name },
+    { $set: { grade: req.body.grade } }
+  );
+  res.json({ message: "Grade Updated" });
+});
+
+// Get all student records
+app.get("/students", async (_, res) =>
+  res.json(await col.find().toArray())
+);
+
+app.listen(3000, () =>
+  console.log("Server running on http://localhost:3000")
+);
+
+
+// ===============================
+// file 2 : index5.html
+// ===============================
+
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>Student Record Management</h2>
+
+<!-- Add student -->
+<form action="/students" method="POST">
+  <input name="name" placeholder="Name" required>
+  <input name="usn" placeholder="USN" required>
+  <input name="department" placeholder="Department" required>
+  <input name="grade" placeholder="Grade" required>
+  <button>Add Student</button>
+</form>
+
+<hr>
+
+<!-- Update grade -->
+<input id="nm" placeholder="Student Name">
+<input id="gr" placeholder="New Grade">
+<button onclick="update()">Update Grade</button>
+
+<hr>
+
+<!-- View students -->
+<button onclick="load()">Show All Students</button>
+<ul id="list"></ul>
+
+<script>
+const load = () =>
+  fetch("/students")
+    .then(r => r.json())
+    .then(d =>
+      list.innerHTML = d.map(s =>
+        `<li>${s.name} | ${s.usn} | ${s.department} | ${s.grade}</li>`
+      ).join("")
+    );
+
+const update = () =>
+  fetch("/students/" + nm.value, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ grade: gr.value })
+  })
+  .then(r => r.json())
+  .then(a => alert(a.message));
+</script>
+
+</body>
+</html>

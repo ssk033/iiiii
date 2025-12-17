@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h4>Stack</h4>
+<input id="s">
+<button onclick="S.push(s.value)">Push</button>
+<button onclick="S.pop()">Pop</button>
+<p id="sd"></p>
+
+<h4>Queue</h4>
+<input id="q">
+<button onclick="Q.enq(q.value)">Enqueue</button>
+<button onclick="Q.deq()">Dequeue</button>
+<p id="qd"></p>
+
+<script>
+const S = (() => {
+  let a = [];
+  return {
+    push:x => (a.push(x), sd.innerText = a),
+    pop:() => (a.pop(), sd.innerText = a)
+  };
+})();
+
+const Q = (() => {
+  let a = [];
+  return {
+    enq:x => (a.push(x), qd.innerText = a),
+    deq:() => (a.shift(), qd.innerText = a)
+  };
+})();
+</script>
+
+</body>
+</html>

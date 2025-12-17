@@ -1,0 +1,108 @@
+// ===============================
+// make folder
+// ===============================
+// mkdir attendance-system
+// cd attendance-system
+
+// ===============================
+// npm init
+// ===============================
+// npm init -y
+
+// ===============================
+// install packages
+// ===============================
+// npm i express
+// npm install mongodb
+// npm install mongoose
+
+
+// ===============================
+// file 1 : app1.js
+// ===============================
+
+const express = require("express");
+const { MongoClient } = require("mongodb");
+const path = require("path");
+
+const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+let col;
+
+// MongoDB connection
+MongoClient.connect("mongodb://127.0.0.1:27017")
+  .then(c => {
+    col = c.db("attendanceDB").collection("students");
+    console.log("MongoDB connected");
+  });
+
+// Load HTML page
+app.get("/", (_, res) =>
+  res.sendFile(path.join(__dirname, "index1.html"))
+);
+
+// Insert attendance record
+app.post("/attendance", async (req, res) => {
+  const percentage = (req.body.attended / req.body.total) * 100;
+
+  await col.insertOne({
+    name: req.body.name,
+    usn: req.body.usn,
+    attended: Number(req.body.attended),
+    total: Number(req.body.total),
+    percentage: percentage
+  });
+  res.redirect("/");
+});
+
+// Get students with attendance < 75%
+app.get("/attendance/low", async (_, res) =>
+  res.json(await col.find({ percentage: { $lt: 75 } }).toArray())
+);
+
+app.listen(3000, () =>
+  console.log("Server running on http://localhost:3000")
+);
+
+
+// ===============================
+// file 2 : index1.html
+// ===============================
+
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>Attendance Management System</h2>
+
+<!-- Add attendance -->
+<form action="/attendance" method="POST">
+  <input name="name" placeholder="Student Name" required>
+  <input name="usn" placeholder="USN" required>
+  <input name="attended" placeholder="Classes Attended" required>
+  <input name="total" placeholder="Total Classes" required>
+  <button>Add Attendance</button>
+</form>
+
+<hr>
+
+<!-- Show low attendance -->
+<button onclick="load()">Show Attendance Below 75%</button>
+
+<ul id="list"></ul>
+
+<script>
+const load = () =>
+  fetch("/attendance/low")
+    .then(r => r.json())
+    .then(d =>
+      list.innerHTML = d.map(s =>
+        `<li>${s.name} | ${s.usn} | ${s.percentage.toFixed(2)}%</li>`
+      ).join("")
+    );
+</script>
+
+</body>
+</html>

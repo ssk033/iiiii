@@ -1,0 +1,108 @@
+// ===============================
+// make folder
+// ===============================
+// mkdir startup-system
+// cd startup-system
+
+// ===============================
+// npm init
+// ===============================
+// npm init -y
+
+// ===============================
+// install packages
+// ===============================
+// npm i express
+// npm install mongodb
+// npm install mongoose
+
+
+// ===============================
+// file 1 : app1.js
+// ===============================
+
+const express = require("express");
+const { MongoClient } = require("mongodb");
+const path = require("path");
+
+const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+let col;
+
+// MongoDB connection
+MongoClient.connect("mongodb://127.0.0.1:27017")
+  .then(c => {
+    col = c.db("startupDB").collection("ideas");
+    console.log("MongoDB connected");
+  });
+
+// Load HTML page
+app.get("/", (_, res) =>
+  res.sendFile(path.join(__dirname, "index1.html"))
+);
+
+// Insert startup idea
+app.post("/ideas", async (req, res) => {
+  await col.insertOne({
+    team_name: req.body.team_name,
+    domain: req.body.domain,
+    funding: Number(req.body.funding)
+  });
+  res.redirect("/");
+});
+
+// Get EdTech ideas with funding > 5 lakhs
+app.get("/ideas/edtech", async (_, res) =>
+  res.json(
+    await col.find({
+      domain: "EdTech",
+      funding: { $gt: 500000 }
+    }).toArray()
+  )
+);
+
+app.listen(3000, () =>
+  console.log("Server running on http://localhost:3000")
+);
+
+
+// ===============================
+// file 2 : index1.html
+// ===============================
+
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>Startup Idea Portal</h2>
+
+<!-- Add startup idea -->
+<form action="/ideas" method="POST">
+  <input name="team_name" placeholder="Team Name" required>
+  <input name="domain" placeholder="Domain (Eg: EdTech)" required>
+  <input name="funding" placeholder="Funding Amount" required>
+  <button>Submit Idea</button>
+</form>
+
+<hr>
+
+<!-- Display filtered startups -->
+<button onclick="load()">Show EdTech Startups (Funding > 5 Lakhs)</button>
+
+<ul id="list"></ul>
+
+<script>
+const load = () =>
+  fetch("/ideas/edtech")
+    .then(r => r.json())
+    .then(d =>
+      list.innerHTML = d.map(i =>
+        `<li>${i.team_name} | ${i.domain} | ${i.funding}</li>`
+      ).join("")
+    );
+</script>
+
+</body>
+</html>

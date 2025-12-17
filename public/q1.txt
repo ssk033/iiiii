@@ -1,0 +1,90 @@
+
+// make folder
+// npm init -y
+// npm i express 
+// npm install mongoose
+// npm install mongodb
+// file 1 : app1.js
+
+const express = require("express");
+const { MongoClient, ObjectId } = require("mongodb");
+const path = require("path");
+
+const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+let col;
+MongoClient.connect("mongodb://127.0.0.1:27017")
+  .then(c => {
+    col = c.db("complaintDB").collection("complaints");
+    console.log("MongoDB connected");
+  });
+
+app.get("/", (_, res) =>
+  res.sendFile(path.join(__dirname, "index.html"))
+);
+
+app.post("/complaints", async (req, res) => {
+  await col.insertOne({ ...req.body, status: "Pending" });
+  res.redirect("/");
+});
+
+app.put("/complaints/:id", async (req, res) => {
+  await col.updateOne(
+    { _id: new ObjectId(req.params.id) },
+    { $set: { status: req.body.status } }
+  );
+  res.json({ message: "Status Updated" });
+});
+
+app.get("/complaints", async (_, res) =>
+  res.json(await col.find().toArray())
+);
+
+app.listen(3000, () => console.log("Server running"));
+
+// file 2 : index1.html
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>Complaint Management</h2>
+
+<form action="/complaints" method="POST">
+  <input name="userName" placeholder="Name" required>
+  <input name="issue" placeholder="Issue" required>
+  <button>Submit</button>
+</form>
+
+<hr>
+
+<input id="id" placeholder="Complaint ID">
+<select id="st">
+  <option>In Progress</option>
+  <option>Resolved</option>
+</select>
+<button onclick="update()">Update</button>
+
+<hr>
+
+<button onclick="load()">Show All</button>
+<ul id="list"></ul>
+
+<script>
+const load = () =>
+  fetch("/complaints").then(r=>r.json())
+  .then(d=>list.innerHTML=d.map(c=>
+    `<li>${c._id} | ${c.userName} | ${c.issue} | ${c.status}</li>`
+  ).join(""));
+
+const update = () =>
+  fetch("/complaints/"+id.value,{
+    method:"PUT",
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({status:st.value})
+  }).then(r=>r.json()).then(a=>alert(a.message));
+</script>
+
+</body>
+</html>

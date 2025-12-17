@@ -1,0 +1,108 @@
+// ===============================
+// make folder
+// ===============================
+// mkdir employee-hr
+// cd employee-hr
+
+// ===============================
+// npm init
+// ===============================
+// npm init -y
+
+// ===============================
+// install packages
+// ===============================
+// npm i express
+// npm install mongoose
+// npm install mongodb
+
+
+// ===============================
+// file 1 : app1.js
+// ===============================
+
+const express = require("express");
+const { MongoClient } = require("mongodb");
+const path = require("path");
+
+const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+let col;
+
+// MongoDB connection
+MongoClient.connect("mongodb://127.0.0.1:27017")
+  .then(c => {
+    col = c.db("HR").collection("employees");
+    console.log("MongoDB connected");
+  });
+
+// Load HTML page
+app.get("/", (_, res) =>
+  res.sendFile(path.join(__dirname, "index1.html"))
+);
+
+// Insert employee details
+app.post("/employees", async (req, res) => {
+  await col.insertOne({
+    emp_name: req.body.emp_name,
+    email: req.body.email,
+    phone: req.body.phone,
+    hire_date: req.body.hire_date,
+    job_title: req.body.job_title,
+    salary: Number(req.body.salary)
+  });
+  res.redirect("/");
+});
+
+// Get employees with salary > 50000
+app.get("/employees/highsalary", async (_, res) => {
+  const data = await col.find({ salary: { $gt: 50000 } }).toArray();
+  res.json(data);
+});
+
+app.listen(3000, () =>
+  console.log("Server running on http://localhost:3000")
+);
+
+
+// ===============================
+// file 2 : index1.html
+// ===============================
+
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>Employee Management (HR)</h2>
+
+<form action="/employees" method="POST">
+  <input name="emp_name" placeholder="Employee Name" required>
+  <input name="email" placeholder="Email" required>
+  <input name="phone" placeholder="Phone" required>
+  <input name="hire_date" placeholder="Hire Date" required>
+  <input name="job_title" placeholder="Job Title" required>
+  <input name="salary" placeholder="Salary" required>
+  <button>Add Employee</button>
+</form>
+
+<hr>
+
+<button onclick="load()">Show Employees with Salary > 50000</button>
+
+<ul id="list"></ul>
+
+<script>
+const load = () =>
+  fetch("/employees/highsalary")
+    .then(r => r.json())
+    .then(d =>
+      list.innerHTML = d.map(e =>
+        `<li>${e.emp_name} | ${e.job_title} | ${e.salary}</li>`
+      ).join("")
+    );
+</script>
+
+</body>
+</html>

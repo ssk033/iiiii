@@ -1,0 +1,80 @@
+// app2.js
+
+const e = require("express");
+const { MongoClient } = require("mongodb");
+const p = require("path");
+
+const app = e();
+app.use(e.urlencoded({ extended: true }));
+app.use(e.json());
+
+let col;
+MongoClient.connect("mongodb://127.0.0.1:27017")
+  .then(c => {
+    col = c.db("collegeDB").collection("students");
+    console.log("MongoDB connected");
+  });
+
+app.get("/", (_, r) =>
+  r.sendFile(p.join(__dirname, "index.html"))
+);
+
+app.post("/students", async (req, r) => {
+  const { name, usn, sem, fee } = req.body;
+  await col.insertOne({
+    Student_name: name,
+    USN: usn,
+    Semester: sem,
+    Exam_fee: +fee
+  });
+  r.redirect("/");
+});
+
+app.delete("/students/unpaid", async (_, r) => {
+  const d = await col.deleteMany({ Exam_fee: { $in: [0, null] } });
+  r.json({ message: "Unpaid students deleted", deleted: d.deletedCount });
+});
+
+app.get("/students", async (_, r) =>
+  r.json(await col.find().toArray())
+);
+
+app.listen(3000, () => console.log("Server running"));
+
+// index2.html 
+
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>Student Exam Fee</h2>
+
+<form action="/students" method="POST">
+  <input name="name" placeholder="Name" required>
+  <input name="usn" placeholder="USN" required>
+  <input name="sem" placeholder="Semester" required>
+  <input name="fee" placeholder="Exam Fee">
+  <button>Add</button>
+</form>
+
+<hr>
+
+<button onclick="del()">Delete Fee = 0</button>
+<button onclick="load()">Show Students</button>
+
+<ul id="list"></ul>
+
+<script>
+const load = () =>
+  fetch("/students").then(r=>r.json())
+  .then(d=>list.innerHTML=d.map(s=>
+    `<li>${s.Student_name} | ${s.USN} | Sem ${s.Semester} | Fee ${s.Exam_fee}</li>`
+  ).join(""));
+
+const del = () =>
+  fetch("/students/unpaid",{method:"DELETE"})
+  .then(r=>r.json()).then(a=>alert(a.message));
+</script>
+
+</body>
+</html>
