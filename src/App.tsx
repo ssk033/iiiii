@@ -1580,6 +1580,7 @@ function App() {
   const [selectedFile, setSelectedFile] = useState<number | null>(null);
   const [selectedSource, setSelectedSource] = useState<'components' | 'partb'>('components');
   const [issue, setIssue] = useState<string>('');
+  const [copied, setCopied] = useState<boolean>(false);
   
   const buttons = [
     'Student Name',
@@ -1604,6 +1605,22 @@ function App() {
   const handleShowButtonClick = (index: number) => {
     setSelectedFile(index + 1);
     setSelectedSource('partb');
+  };
+
+  const handleCopy = async () => {
+    if (selectedFile) {
+      const codeToCopy = selectedSource === 'partb' 
+        ? partbFileContents[selectedFile] 
+        : fileContents[selectedFile];
+      
+      try {
+        await navigator.clipboard.writeText(codeToCopy);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } catch (err) {
+        console.error('Failed to copy:', err);
+      }
+    }
   };
 
   return (
@@ -1656,7 +1673,16 @@ function App() {
                 : `File: q${selectedFile}.${selectedFile === 4 || selectedFile === 6 ? 'jsx' : selectedFile === 7 || selectedFile === 8 || selectedFile === 10 ? 'js' : 'html'}`
               }
             </h2>
-            <button className="close-button" onClick={() => setSelectedFile(null)}>×</button>
+            <div className="header-buttons">
+              <button 
+                className="copy-button" 
+                onClick={handleCopy}
+                title="Copy code"
+              >
+                {copied ? '✓' : 'C'}
+              </button>
+              <button className="close-button" onClick={() => setSelectedFile(null)}>×</button>
+            </div>
           </div>
           <pre className="code-block">
             <code>{selectedSource === 'partb' ? partbFileContents[selectedFile] : fileContents[selectedFile]}</code>
