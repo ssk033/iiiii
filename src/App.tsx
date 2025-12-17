@@ -80,16 +80,56 @@ const go = () => {
 
 </body>
 </html>`,
-  4: `import React, { useState } from "react";
+  4: `=========================================
+VITE + REACT : EMPLOYEE APP PROJECT
+=========================================
+
+
+-----------------------------------------
+STEP 1: CREATE VITE PROJECT
+-----------------------------------------
+
+npm create vite@latest employee-app
+# Select Framework  : React
+# Select Variant    : JavaScript
+
+
+-----------------------------------------
+STEP 2: INSTALL DEPENDENCIES
+-----------------------------------------
+
+cd employee-app
+npm install
+
+
+-----------------------------------------
+STEP 3: CREATE EMPLOYEE COMPONENT
+-----------------------------------------
+
+cd src
+touch Employee.jsx
+
+
+----------CREATE FILE: src/Employee.jsx ----------
+
+import { useState } from "react";
 
 function Employee() {
-  const [name, setName] = useState("Rahul");
-  const [address, setAddress] = useState("Bangalore");
+  const names = ["Rahul", "Amit", "Rohit", "Suresh", "Vikas"];
+  const cities = ["Bangalore", "Mumbai", "Delhi", "Pune", "Chennai"];
+
+  const [name, setName] = useState(names[0]);
+  const [address, setAddress] = useState(cities[0]);
   const company = "Infosys";
 
   const changeDetails = () => {
-    setName("Amit");
-    setAddress("Mumbai");
+    const randomName =
+      names[Math.floor(Math.random() * names.length)];
+    const randomCity =
+      cities[Math.floor(Math.random() * cities.length)];
+
+    setName(randomName);
+    setAddress(randomCity);
   };
 
   return (
@@ -104,7 +144,33 @@ function Employee() {
   );
 }
 
-export default Employee;`,
+export default Employee;
+
+
+-----------------------------------------
+STEP 4: APP COMPONENT
+-----------------------------------------
+
+---------- FILE: src/App.jsx ----------
+
+import Employee from "./Employee";
+
+function App() {
+  return (
+    <div>
+      <Employee />
+    </div>
+  );
+}
+
+export default App;
+
+-----------------------------------------
+STEP 5: RUN PROJECT
+-----------------------------------------
+npm run dev
+
+`,
   5: `<!DOCTYPE html>
 <html>
 <body>
@@ -124,7 +190,39 @@ const show = () =>
 
 </body>
 </html>`,
-  6: `import React, { useState } from "react";
+  6: `=========================================
+VITE + REACT : NAME DISPLAY APP
+=========================================
+
+
+-----------------------------------------
+STEP 1: CREATE VITE PROJECT
+-----------------------------------------
+
+npm create vite@latest employee-app
+# Select Framework  : React
+# Select Variant    : JavaScript
+
+
+-----------------------------------------
+STEP 2: INSTALL DEPENDENCIES
+-----------------------------------------
+
+cd employee-app
+npm install
+
+
+-----------------------------------------
+STEP 3: CREATE NameDisplay COMPONENT
+-----------------------------------------
+
+cd src
+touch NameDisplay.jsx
+
+
+---------- FILE: src/NameDisplay.jsx ----------
+
+import React, { useState } from "react";
 
 function NameDisplay() {
   const [name, setName] = useState("");
@@ -142,7 +240,33 @@ function NameDisplay() {
   );
 }
 
-export default NameDisplay;`,
+export default NameDisplay;
+
+
+-----------------------------------------
+STEP 4: APP COMPONENT
+-----------------------------------------
+
+---------- FILE: src/App.jsx ----------
+
+import NameDisplay from "./NameDisplay";
+
+function App() {
+  return (
+    <div>
+      <NameDisplay />
+    </div>
+  );
+}
+
+export default App;
+
+
+-----------------------------------------
+STEP 5: RUN PROJECT
+-----------------------------------------
+npm run dev
+`,
   7: `const express = require("express");
 const app = express();
 
