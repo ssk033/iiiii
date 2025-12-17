@@ -622,7 +622,34 @@ const load = () =>
 
 </body>
 </html>`,
-  4: `//app4.js 
+  4: `// ===================================================
+// STEP 1: Create Project Folder
+// ===================================================
+
+// mkdir internship-system
+// cd internship-system
+
+
+// ===================================================
+// STEP 2: Initialize npm
+// ===================================================
+
+// npm init -y
+
+
+// ===================================================
+// STEP 3: Install Required Packages
+// ===================================================
+
+// npm install express
+// npm install mongodb
+// npm install mongoose
+
+
+// ===================================================
+// FILE 1 : app4.js
+// ===================================================
+
 const e = require("express");
 const { MongoClient, ObjectId } = require("mongodb");
 const p = require("path");
@@ -632,16 +659,20 @@ app.use(e.urlencoded({ extended: true }));
 app.use(e.json());
 
 let col;
+
+// MongoDB connection
 MongoClient.connect("mongodb://127.0.0.1:27017")
   .then(c => {
     col = c.db("internshipDB").collection("internships");
     console.log("MongoDB connected");
   });
 
+// Load HTML page
 app.get("/", (_, r) =>
-  r.sendFile(p.join(__dirname, "index.html"))
+  r.sendFile(p.join(__dirname, "index4.html"))
 );
 
+// Insert internship details
 app.post("/internships", async (req, r) => {
   await col.insertOne({
     Student_ID: req.body.sid,
@@ -653,65 +684,79 @@ app.post("/internships", async (req, r) => {
   r.redirect("/");
 });
 
+// Get interns working in Infosys
 app.get("/internships/infosys", async (_, r) =>
   r.json(await col.find({ Company: "Infosys" }).toArray())
 );
 
+// Update internship status
 app.put("/internships/:id", async (req, r) => {
   await col.updateOne(
     { _id: new ObjectId(req.params.id) },
     { $set: { Status: req.body.status } }
   );
-  r.json({ message:  "Status Updated" });
+  r.json({ message: "Status Updated" });
 });
 
-app.listen(3000, () => console.log("Server running"));
+app.listen(3000, () =>
+  console.log("Server running on http://localhost:3000")
+);
 
-//index4.html
 
+// ===================================================
+// FILE 2 : index4.html
+// ===================================================
 
 <!DOCTYPE html>
 <html>
 <body>
 
-<h2>Internship Tracking</h2>
+<h2>Internship Tracking System</h2>
 
+<!-- Add internship -->
 <form action="/internships" method="POST">
   <input name="sid" placeholder="Student ID" required>
-  <input name="name" placeholder="Name" required>
+  <input name="name" placeholder="Student Name" required>
   <input name="company" placeholder="Company" required>
   <input name="duration" placeholder="Duration" required>
   <input name="status" value="Ongoing">
-  <button>Add</button>
+  <button>Add Internship</button>
 </form>
 
 <hr>
 
+<!-- Update internship status -->
 <input id="id" placeholder="Internship ID">
 <select id="st">
   <option>Ongoing</option>
   <option>Completed</option>
 </select>
-<button onclick="update()">Update</button>
+<button onclick="update()">Update Status</button>
 
 <hr>
 
+<!-- View Infosys interns -->
 <button onclick="load()">Show Infosys Interns</button>
 <ul id="list"></ul>
 
 <script>
 const load = () =>
-  fetch("/internships/infosys").then(r=>r.json())
-  .then(d=>list.innerHTML=d.map(i=>
-    \`<li>\${i._id} | \${i.Student_ID} | \${i.Name} | \${i.Duration} | \${i.Status}</li>\`
-  ).join(""));
+  fetch("/internships/infosys")
+    .then(r => r.json())
+    .then(d =>
+      list.innerHTML = d.map(i =>
+        \`<li>\${i._id} | \${i.Student_ID} | \${i.Name} | \${i.Duration} | \${i.Status}</li>\`
+      ).join("")
+    );
 
 const update = () =>
-  fetch("/internships/"+id.value,{
-    method:"PUT",
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({status:st.value})
-  }).then(r=>r.json()).then(a=>alert(a.message));
+  fetch("/internships/" + id.value, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ status: st.value })
+  })
+  .then(r => r.json())
+  .then(a => alert(a.message));
 </script>
 
 </body>
@@ -845,7 +890,34 @@ const update = () =>
 
 </body>
 </html>`,
-  6: `// app6.js 
+  6: `// ===================================================
+// STEP 1: Create Project Folder
+// ===================================================
+
+// mkdir hospital-system
+// cd hospital-system
+
+
+// ===================================================
+// STEP 2: Initialize npm
+// ===================================================
+
+// npm init -y
+
+
+// ===================================================
+// STEP 3: Install Required Packages
+// ===================================================
+
+// npm install express
+// npm install mongodb
+// npm install mongoose
+
+
+// ===================================================
+// FILE 1 : app6.js
+// ===================================================
+
 const e = require("express");
 const { MongoClient } = require("mongodb");
 const p = require("path");
@@ -855,64 +927,88 @@ app.use(e.urlencoded({ extended: true }));
 app.use(e.json());
 
 let col;
+
+// MongoDB connection
 MongoClient.connect("mongodb://127.0.0.1:27017")
   .then(c => {
     col = c.db("hospitalDB").collection("hospitals");
     console.log("MongoDB connected");
   });
 
+// Load HTML page
 app.get("/", (_, r) =>
-  r.sendFile(p.join(__dirname, "index.html"))
+  r.sendFile(p.join(__dirname, "index6.html"))
 );
 
+// Insert hospital details
 app.post("/hospitals", async (req, r) => {
   const { hid, name, location, total, occupied } = req.body;
   await col.insertOne({
     Hospital_ID: hid,
     Name: name,
     Location: location,
-    Total_Beds: +total,
-    Occupied_Beds: +occupied
+    Total_Beds: Number(total),
+    Occupied_Beds: Number(occupied)
   });
   r.redirect("/");
 });
 
+// Admit a patient (increment occupied beds)
 app.post("/hospitals/admit", async (req, r) => {
   const u = await col.updateOne(
     { Hospital_ID: req.body.hid },
     { $inc: { Occupied_Beds: 1 } }
   );
-  r.send(u.matchedCount
-    ? "Patient admitted <br><a href='/'>Back</a>"
-    : "Hospital not found <br><a href='/'>Back</a>");
+
+  r.send(
+    u.matchedCount
+      ? "Patient admitted <br><a href='/'>Back</a>"
+      : "Hospital not found <br><a href='/'>Back</a>"
+  );
 });
 
+// Display hospitals with available beds < 10
 app.get("/hospitals/lowbeds", async (_, r) =>
-  r.json(await col.find({
-    $expr: { $lt: [{ $subtract: ["$Total_Beds","$Occupied_Beds"] }, 10] }
-  }).toArray())
+  r.json(
+    await col.find({
+      $expr: {
+        $lt: [
+          { $subtract: ["$Total_Beds", "$Occupied_Beds"] },
+          10
+        ]
+      }
+    }).toArray()
+  )
 );
 
-app.listen(3000, () => console.log("Server running"));
+app.listen(3000, () =>
+  console.log("Server running on http://localhost:3000")
+);
 
-// index6.html 
+
+// ===================================================
+// FILE 2 : index6.html
+// ===================================================
+
 <!DOCTYPE html>
 <html>
 <body>
 
-<h2>Hospital Bed Management</h2>
+<h2>Hospital Bed Management System</h2>
 
+<!-- Add hospital -->
 <form action="/hospitals" method="POST">
   <input name="hid" placeholder="Hospital ID" required>
-  <input name="name" placeholder="Name" required>
+  <input name="name" placeholder="Hospital Name" required>
   <input name="location" placeholder="Location" required>
   <input name="total" placeholder="Total Beds" required>
   <input name="occupied" placeholder="Occupied Beds" required>
-  <button>Add</button>
+  <button>Add Hospital</button>
 </form>
 
 <hr>
 
+<!-- Admit patient -->
 <form action="/hospitals/admit" method="POST">
   <input name="hid" placeholder="Hospital ID" required>
   <button>Admit Patient</button>
@@ -920,15 +1016,20 @@ app.listen(3000, () => console.log("Server running"));
 
 <hr>
 
-<button onclick="load()">Hospitals with < 10 Beds</button>
+<!-- Show hospitals with low availability -->
+<button onclick="load()">Hospitals with &lt; 10 Available Beds</button>
+
 <ul id="list"></ul>
 
 <script>
 const load = () =>
-  fetch("/hospitals/lowbeds").then(r=>r.json())
-  .then(d=>list.innerHTML=d.map(h=>
-    \`<li>\${h.Name} (\${h.Location}) | Available: \${h.Total_Beds-h.Occupied_Beds}</li>\`
-  ).join(""));
+  fetch("/hospitals/lowbeds")
+    .then(r => r.json())
+    .then(d =>
+      list.innerHTML = d.map(h =>
+        \`<li>\${h.Name} (\${h.Location}) | Available: \${h.Total_Beds - h.Occupied_Beds}</li>\`
+      ).join("")
+    );
 </script>
 
 </body>

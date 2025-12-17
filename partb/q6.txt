@@ -1,4 +1,31 @@
-// app6.js 
+// ===================================================
+// STEP 1: Create Project Folder
+// ===================================================
+
+// mkdir hospital-system
+// cd hospital-system
+
+
+// ===================================================
+// STEP 2: Initialize npm
+// ===================================================
+
+// npm init -y
+
+
+// ===================================================
+// STEP 3: Install Required Packages
+// ===================================================
+
+// npm install express
+// npm install mongodb
+// npm install mongoose
+
+
+// ===================================================
+// FILE 1 : app6.js
+// ===================================================
+
 const e = require("express");
 const { MongoClient } = require("mongodb");
 const p = require("path");
@@ -8,64 +35,88 @@ app.use(e.urlencoded({ extended: true }));
 app.use(e.json());
 
 let col;
+
+// MongoDB connection
 MongoClient.connect("mongodb://127.0.0.1:27017")
   .then(c => {
     col = c.db("hospitalDB").collection("hospitals");
     console.log("MongoDB connected");
   });
 
+// Load HTML page
 app.get("/", (_, r) =>
-  r.sendFile(p.join(__dirname, "index.html"))
+  r.sendFile(p.join(__dirname, "index6.html"))
 );
 
+// Insert hospital details
 app.post("/hospitals", async (req, r) => {
   const { hid, name, location, total, occupied } = req.body;
   await col.insertOne({
     Hospital_ID: hid,
     Name: name,
     Location: location,
-    Total_Beds: +total,
-    Occupied_Beds: +occupied
+    Total_Beds: Number(total),
+    Occupied_Beds: Number(occupied)
   });
   r.redirect("/");
 });
 
+// Admit a patient (increment occupied beds)
 app.post("/hospitals/admit", async (req, r) => {
   const u = await col.updateOne(
     { Hospital_ID: req.body.hid },
     { $inc: { Occupied_Beds: 1 } }
   );
-  r.send(u.matchedCount
-    ? "Patient admitted <br><a href='/'>Back</a>"
-    : "Hospital not found <br><a href='/'>Back</a>");
+
+  r.send(
+    u.matchedCount
+      ? "Patient admitted <br><a href='/'>Back</a>"
+      : "Hospital not found <br><a href='/'>Back</a>"
+  );
 });
 
+// Display hospitals with available beds < 10
 app.get("/hospitals/lowbeds", async (_, r) =>
-  r.json(await col.find({
-    $expr: { $lt: [{ $subtract: ["$Total_Beds","$Occupied_Beds"] }, 10] }
-  }).toArray())
+  r.json(
+    await col.find({
+      $expr: {
+        $lt: [
+          { $subtract: ["$Total_Beds", "$Occupied_Beds"] },
+          10
+        ]
+      }
+    }).toArray()
+  )
 );
 
-app.listen(3000, () => console.log("Server running"));
+app.listen(3000, () =>
+  console.log("Server running on http://localhost:3000")
+);
 
-// index6.html 
+
+// ===================================================
+// FILE 2 : index6.html
+// ===================================================
+
 <!DOCTYPE html>
 <html>
 <body>
 
-<h2>Hospital Bed Management</h2>
+<h2>Hospital Bed Management System</h2>
 
+<!-- Add hospital -->
 <form action="/hospitals" method="POST">
   <input name="hid" placeholder="Hospital ID" required>
-  <input name="name" placeholder="Name" required>
+  <input name="name" placeholder="Hospital Name" required>
   <input name="location" placeholder="Location" required>
   <input name="total" placeholder="Total Beds" required>
   <input name="occupied" placeholder="Occupied Beds" required>
-  <button>Add</button>
+  <button>Add Hospital</button>
 </form>
 
 <hr>
 
+<!-- Admit patient -->
 <form action="/hospitals/admit" method="POST">
   <input name="hid" placeholder="Hospital ID" required>
   <button>Admit Patient</button>
@@ -73,15 +124,20 @@ app.listen(3000, () => console.log("Server running"));
 
 <hr>
 
-<button onclick="load()">Hospitals with &lt; 10 Beds</button>
+<!-- Show hospitals with low availability -->
+<button onclick="load()">Hospitals with &lt; 10 Available Beds</button>
+
 <ul id="list"></ul>
 
 <script>
 const load = () =>
-  fetch("/hospitals/lowbeds").then(r=>r.json())
-  .then(d=>list.innerHTML=d.map(h=>
-    `<li>${h.Name} (${h.Location}) | Available: ${h.Total_Beds-h.Occupied_Beds}</li>`
-  ).join(""));
+  fetch("/hospitals/lowbeds")
+    .then(r => r.json())
+    .then(d =>
+      list.innerHTML = d.map(h =>
+        `<li>${h.Name} (${h.Location}) | Available: ${h.Total_Beds - h.Occupied_Beds}</li>`
+      ).join("")
+    );
 </script>
 
 </body>
