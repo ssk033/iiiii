@@ -1,0 +1,103 @@
+// ===============================
+// make folder
+// ===============================
+// mkdir student-system
+// cd student-system
+
+// ===============================
+// npm init
+// ===============================
+// npm init -y
+
+// ===============================
+// install packages
+// ===============================
+// npm i express
+// npm install mongodb
+// npm install mongoose
+
+
+// ===============================
+// file 1 : app9.js
+// ===============================
+
+const express = require("express");
+const { MongoClient } = require("mongodb");
+const path = require("path");
+
+const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+let col;
+
+// MongoDB connection
+MongoClient.connect("mongodb://127.0.0.1:27017")
+  .then(c => {
+    col = c.db("studentDB").collection("students");
+    console.log("MongoDB connected");
+  });
+
+// Load HTML page
+app.get("/", (_, res) =>
+  res.sendFile(path.join(__dirname, "index1.html"))
+);
+
+// Insert student details
+app.post("/students", async (req, res) => {
+  await col.insertOne({
+    name: req.body.name,
+    branch: req.body.branch,
+    semester: req.body.semester
+  });
+  res.redirect("/");
+});
+
+// Get CSE 6th semester students
+app.get("/students/cse6", async (_, res) =>
+  res.json(await col.find({ branch: "CSE", semester: "6" }).toArray())
+);
+
+app.listen(3000, () =>
+  console.log("Server running on http://localhost:3000")
+);
+
+
+// ===============================
+// file 2 : index9.html
+// ===============================
+
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>Student Information System</h2>
+
+<!-- Add student -->
+<form action="/students" method="POST">
+  <input name="name" placeholder="Student Name" required>
+  <input name="branch" placeholder="Branch" required>
+  <input name="semester" placeholder="Semester" required>
+  <button>Add Student</button>
+</form>
+
+<hr>
+
+<!-- Display CSE 6th semester students -->
+<button onclick="load()">Show CSE 6th Semester Students</button>
+
+<ul id="list"></ul>
+
+<script>
+const load = () =>
+  fetch("/students/cse6")
+    .then(r => r.json())
+    .then(d =>
+      list.innerHTML = d.map(s =>
+        `<li>${s.name} | ${s.branch} | ${s.semester}</li>`
+      ).join("")
+    );
+</script>
+
+</body>
+</html>

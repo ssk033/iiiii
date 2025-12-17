@@ -1,3 +1,0 @@
-app1b.js  app4b.js      index3b.html  q10.html  q3.html  q7.html
-app2b.js  index1b.html  index4b.html  q1.html   q4.html  q8.xhtml
-app3b.js  index2b.html  index.js      q2.html   q6.html  q9.html

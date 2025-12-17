@@ -1,0 +1,106 @@
+// ===============================
+// make folder
+// ===============================
+// mkdir exam-system
+// cd exam-system
+
+// ===============================
+// npm init
+// ===============================
+// npm init -y
+
+// ===============================
+// install packages
+// ===============================
+// npm i express
+// npm install mongodb
+// npm install mongoose
+
+
+// ===============================
+// file 1 : app1.js
+// ===============================
+
+const express = require("express");
+const { MongoClient } = require("mongodb");
+const path = require("path");
+
+const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+let col;
+
+// MongoDB connection
+MongoClient.connect("mongodb://127.0.0.1:27017")
+  .then(c => {
+    col = c.db("examDB").collection("students");
+    console.log("MongoDB connected");
+  });
+
+// Load HTML page
+app.get("/", (_, res) =>
+  res.sendFile(path.join(__dirname, "index1.html"))
+);
+
+// Insert student and determine eligibility
+app.post("/students", async (req, res) => {
+  const status = req.body.marks < 20 ? "Not Eligible" : "Eligible";
+
+  await col.insertOne({
+    name: req.body.name,
+    usn: req.body.usn,
+    marks: Number(req.body.marks),
+    status: status
+  });
+  res.redirect("/");
+});
+
+// Get not eligible students
+app.get("/students/noteligible", async (_, res) =>
+  res.json(await col.find({ status: "Not Eligible" }).toArray())
+);
+
+app.listen(3000, () =>
+  console.log("Server running on http://localhost:3000")
+);
+
+
+// ===============================
+// file 2 : index1.html
+// ===============================
+
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>Examination Eligibility System</h2>
+
+<!-- Add student marks -->
+<form action="/students" method="POST">
+  <input name="name" placeholder="Student Name" required>
+  <input name="usn" placeholder="USN" required>
+  <input name="marks" placeholder="Marks" required>
+  <button>Add Student</button>
+</form>
+
+<hr>
+
+<!-- Display not eligible students -->
+<button onclick="load()">Show Not Eligible Students</button>
+
+<ul id="list"></ul>
+
+<script>
+const load = () =>
+  fetch("/students/noteligible")
+    .then(r => r.json())
+    .then(d =>
+      list.innerHTML = d.map(s =>
+        `<li>${s.name} | ${s.usn} | ${s.marks} | ${s.status}</li>`
+      ).join("")
+    );
+</script>
+
+</body>
+</html>

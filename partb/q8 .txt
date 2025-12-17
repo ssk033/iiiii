@@ -1,0 +1,77 @@
+// ===============================
+// make folder
+// ===============================
+// mkdir product-system
+// cd product-system
+// npm init -y
+// npm i express
+// npm install mongodb
+// npm install mongoose
+
+// ===============================
+// file : app1.js
+// ===============================
+
+const express = require("express");
+const { MongoClient } = require("mongodb");
+const path = require("path");
+
+const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+let col;
+
+MongoClient.connect("mongodb://127.0.0.1:27017")
+  .then(c => col = c.db("productDB").collection("products"));
+
+app.get("/", (_, res) =>
+  res.sendFile(path.join(__dirname, "index.html"))
+);
+
+// Insert product & calculate Final_Price
+app.post("/products", async (req, res) => {
+  const fp = req.body.price - (req.body.price * req.body.discount / 100);
+  await col.insertOne({
+    product_id: req.body.product_id,
+    name: req.body.name,
+    price: Number(req.body.price),
+    discount: Number(req.body.discount),
+    final_price: fp
+  });
+  res.redirect("/");
+});
+
+// Get products with Final_Price < 1000
+app.get("/products", async (_, res) =>
+  res.json(await col.find({ final_price: { $lt: 1000 } }).toArray())
+);
+
+app.listen(3000, () => console.log("Server running"));
+
+
+<!-- file 2 : index.html -->
+<!DOCTYPE html>
+<html>
+<body>
+<h2>Product Form</h2>
+
+<form action="/products" method="POST">
+  <input name="product_id" placeholder="ID">
+  <input name="name" placeholder="Name">
+  <input name="price" placeholder="Price">
+  <input name="discount" placeholder="Discount">
+  <button>Add</button>
+</form>
+
+<button onclick="load()">Show < 1000</button>
+<ul id="list"></ul>
+
+<script>
+const load = () =>
+  fetch("/products/cheap").then(r=>r.json())
+  .then(d=>list.innerHTML=d.map(p=>
+    `<li>${p.name} | ${p.final_price}</li>`).join(""));
+</script>
+</body>
+</html>

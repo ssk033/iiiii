@@ -1,0 +1,139 @@
+// ===============================
+// make folder
+// ===============================
+// mkdir course-enrollment
+// cd course-enrollment
+
+// ===============================
+// npm init
+// ===============================
+// npm init -y
+
+// ===============================
+// install packages
+// ===============================
+// npm i express
+// npm install mongoose
+// npm install mongodb
+
+
+// ===============================
+// file 1 : app7.js
+// ===============================
+
+const express = require("express");
+const { MongoClient } = require("mongodb");
+const path = require("path");
+
+const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+let col;
+
+// MongoDB connection
+MongoClient.connect("mongodb://127.0.0.1:27017")
+  .then(c => {
+    col = c.db("courseDB").collection("enrollments");
+    console.log("MongoDB connected");
+  });
+
+// Load HTML page
+app.get("/", (_, res) =>
+  res.sendFile(path.join(__dirname, "index1.html"))
+);
+
+// Insert enrollment record
+app.post("/enrollments", async (req, res) => {
+  await col.insertOne({
+    student_id: req.body.student_id,
+    name: req.body.name,
+    course_name: req.body.course_name,
+    duration: req.body.duration,
+    status: "active"
+  });
+  res.redirect("/");
+});
+
+// Get all active enrollments
+app.get("/enrollments/active", async (_, res) => {
+  const data = await col.find({ status: "active" }).toArray();
+  res.json(data);
+});
+
+// Update enrollment status to completed
+app.put("/enrollments", async (req, res) => {
+  await col.updateMany(
+    {
+      $or: [
+        { student_id: req.body.student_id },
+        { course_name: req.body.course_name }
+      ]
+    },
+    { $set: { status: "completed" } }
+  );
+  res.json({ message: "Enrollment Updated" });
+});
+
+app.listen(3000, () =>
+  console.log("Server running on http://localhost:3000")
+);
+
+
+// ===============================
+// file 2 : index7.html
+// ===============================
+
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>Course Enrollment Management</h2>
+
+<!-- Add enrollment -->
+<form action="/enrollments" method="POST">
+  <input name="student_id" placeholder="Student ID" required>
+  <input name="name" placeholder="Name" required>
+  <input name="course_name" placeholder="Course Name" required>
+  <input name="duration" placeholder="Duration" required>
+  <button>Enroll</button>
+</form>
+
+<hr>
+
+<!-- Update enrollment -->
+<input id="sid" placeholder="Student ID">
+<input id="cname" placeholder="Course Name">
+<button onclick="update()">Mark Completed</button>
+
+<hr>
+
+<!-- View active enrollments -->
+<button onclick="load()">Show Active Enrollments</button>
+<ul id="list"></ul>
+
+<script>
+const load = () =>
+  fetch("/enrollments/active")
+    .then(r => r.json())
+    .then(d =>
+      list.innerHTML = d.map(e =>
+        `<li>${e.student_id} | ${e.name} | ${e.course_name} | ${e.status}</li>`
+      ).join("")
+    );
+
+const update = () =>
+  fetch("/enrollments", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      student_id: sid.value,
+      course_name: cname.value
+    })
+  })
+  .then(r => r.json())
+  .then(a => alert(a.message));
+</script>
+
+</body>
+</html>
