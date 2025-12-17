@@ -1,10 +1,33 @@
+// ===================================================
+// STEP 1: Create Project Folder
+// ===================================================
 
-// make folder
+// mkdir complaint-management
+// cd complaint-management
+
+
+
+// ===================================================
+// STEP 2: Initialize npm
+// ===================================================
+
 // npm init -y
-// npm i express 
-// npm install mongoose
+
+
+
+// ===================================================
+// STEP 3: Install Required Packages
+// ===================================================
+
+// npm install express
 // npm install mongodb
-// file 1 : app1.js
+// npm install mongoose
+
+
+
+// ===================================================
+// FILE 1 : app1.js
+// ===================================================
 
 const express = require("express");
 const { MongoClient, ObjectId } = require("mongodb");
@@ -15,6 +38,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 let col;
+
 MongoClient.connect("mongodb://127.0.0.1:27017")
   .then(c => {
     col = c.db("complaintDB").collection("complaints");
@@ -22,7 +46,7 @@ MongoClient.connect("mongodb://127.0.0.1:27017")
   });
 
 app.get("/", (_, res) =>
-  res.sendFile(path.join(__dirname, "index.html"))
+  res.sendFile(path.join(__dirname, "index1.html"))
 );
 
 app.post("/complaints", async (req, res) => {
@@ -42,9 +66,16 @@ app.get("/complaints", async (_, res) =>
   res.json(await col.find().toArray())
 );
 
-app.listen(3000, () => console.log("Server running"));
+app.listen(3000, () =>
+  console.log("Server running on http://localhost:3000")
+);
 
-// file 2 : index1.html
+
+
+// ===================================================
+// FILE 2 : index1.html
+// ===================================================
+
 <!DOCTYPE html>
 <html>
 <body>
@@ -73,17 +104,22 @@ app.listen(3000, () => console.log("Server running"));
 
 <script>
 const load = () =>
-  fetch("/complaints").then(r=>r.json())
-  .then(d=>list.innerHTML=d.map(c=>
-    `<li>${c._id} | ${c.userName} | ${c.issue} | ${c.status}</li>`
-  ).join(""));
+  fetch("/complaints")
+    .then(r => r.json())
+    .then(d =>
+      list.innerHTML = d.map(c =>
+        `<li>${c._id} | ${c.userName} | ${c.issue} | ${c.status}</li>`
+      ).join("")
+    );
 
 const update = () =>
-  fetch("/complaints/"+id.value,{
-    method:"PUT",
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({status:st.value})
-  }).then(r=>r.json()).then(a=>alert(a.message));
+  fetch("/complaints/" + id.value, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ status: st.value })
+  })
+  .then(r => r.json())
+  .then(a => alert(a.message));
 </script>
 
 </body>

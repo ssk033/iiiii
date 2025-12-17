@@ -4,21 +4,26 @@
 // mkdir employee-hr
 // cd employee-hr
 
+
+
 // ===============================
 // npm init
 // ===============================
 // npm init -y
 
+
+
 // ===============================
 // install packages
 // ===============================
 // npm i express
-// npm install mongoose
 // npm install mongodb
+// npm install mongoose
+
 
 
 // ===============================
-// file 1 : app1.js
+// file 1 : app.js
 // ===============================
 
 const express = require("express");
@@ -31,19 +36,16 @@ app.use(express.urlencoded({ extended: true }));
 
 let col;
 
-// MongoDB connection
 MongoClient.connect("mongodb://127.0.0.1:27017")
   .then(c => {
     col = c.db("HR").collection("employees");
     console.log("MongoDB connected");
   });
 
-// Load HTML page
 app.get("/", (_, res) =>
   res.sendFile(path.join(__dirname, "index1.html"))
 );
 
-// Insert employee details
 app.post("/employees", async (req, res) => {
   await col.insertOne({
     emp_name: req.body.emp_name,
@@ -56,15 +58,17 @@ app.post("/employees", async (req, res) => {
   res.redirect("/");
 });
 
-// Get employees with salary > 50000
 app.get("/employees/highsalary", async (_, res) => {
-  const data = await col.find({ salary: { $gt: 50000 } }).toArray();
+  const data = await col.find({
+    salary: { $gt: 50000 }
+  }).toArray();
   res.json(data);
 });
 
 app.listen(3000, () =>
   console.log("Server running on http://localhost:3000")
 );
+
 
 
 // ===============================
@@ -89,7 +93,7 @@ app.listen(3000, () =>
 
 <hr>
 
-<button onclick="load()">Show Employees with Salary > 50000</button>
+<button onclick="load()">Show Employees with Salary &gt; 50000</button>
 
 <ul id="list"></ul>
 

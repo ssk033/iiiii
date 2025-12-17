@@ -40,7 +40,7 @@ MongoClient.connect("mongodb://127.0.0.1:27017")
 
 // Load HTML page
 app.get("/", (_, res) =>
-  res.sendFile(path.join(__dirname, "index1.html"))
+  res.sendFile(path.join(__dirname, "index7.html"))
 );
 
 // Insert enrollment record

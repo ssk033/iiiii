@@ -1,4 +1,33 @@
-// app2.js
+// ===================================================
+// STEP 1: Create Project Folder
+// ===================================================
+
+// mkdir student-exam-fee
+// cd student-exam-fee
+
+
+
+// ===================================================
+// STEP 2: Initialize npm
+// ===================================================
+
+// npm init -y
+
+
+
+// ===================================================
+// STEP 3: Install Required Packages
+// ===================================================
+
+// npm install express
+// npm install mongodb
+// npm install mongoose
+
+
+
+// ===================================================
+// FILE 1 : app2.js
+// ===================================================
 
 const e = require("express");
 const { MongoClient } = require("mongodb");
@@ -9,6 +38,7 @@ app.use(e.urlencoded({ extended: true }));
 app.use(e.json());
 
 let col;
+
 MongoClient.connect("mongodb://127.0.0.1:27017")
   .then(c => {
     col = c.db("collegeDB").collection("students");
@@ -16,7 +46,7 @@ MongoClient.connect("mongodb://127.0.0.1:27017")
   });
 
 app.get("/", (_, r) =>
-  r.sendFile(p.join(__dirname, "index.html"))
+  r.sendFile(p.join(__dirname, "index2.html"))
 );
 
 app.post("/students", async (req, r) => {
@@ -31,23 +61,34 @@ app.post("/students", async (req, r) => {
 });
 
 app.delete("/students/unpaid", async (_, r) => {
-  const d = await col.deleteMany({ Exam_fee: { $in: [0, null] } });
-  r.json({ message: "Unpaid students deleted", deleted: d.deletedCount });
+  const d = await col.deleteMany({
+    Exam_fee: { $in: [0, null] }
+  });
+  r.json({
+    message: "Unpaid students deleted",
+    deleted: d.deletedCount
+  });
 });
 
 app.get("/students", async (_, r) =>
   r.json(await col.find().toArray())
 );
 
-app.listen(3000, () => console.log("Server running"));
+app.listen(3000, () =>
+  console.log("Server running on http://localhost:3000")
+);
 
-// index2.html 
+
+
+// ===================================================
+// FILE 2 : index2.html
+// ===================================================
 
 <!DOCTYPE html>
 <html>
 <body>
 
-<h2>Student Exam Fee</h2>
+<h2>Student Exam Fee Management</h2>
 
 <form action="/students" method="POST">
   <input name="name" placeholder="Name" required>
@@ -66,14 +107,18 @@ app.listen(3000, () => console.log("Server running"));
 
 <script>
 const load = () =>
-  fetch("/students").then(r=>r.json())
-  .then(d=>list.innerHTML=d.map(s=>
-    `<li>${s.Student_name} | ${s.USN} | Sem ${s.Semester} | Fee ${s.Exam_fee}</li>`
-  ).join(""));
+  fetch("/students")
+    .then(r => r.json())
+    .then(d =>
+      list.innerHTML = d.map(s =>
+        `<li>${s.Student_name} | ${s.USN} | Sem ${s.Semester} | Fee ${s.Exam_fee}</li>`
+      ).join("")
+    );
 
 const del = () =>
-  fetch("/students/unpaid",{method:"DELETE"})
-  .then(r=>r.json()).then(a=>alert(a.message));
+  fetch("/students/unpaid", { method: "DELETE" })
+    .then(r => r.json())
+    .then(a => alert(a.message));
 </script>
 
 </body>

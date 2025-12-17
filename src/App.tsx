@@ -345,12 +345,36 @@ const Q = (() => {
 
 // PartB folder file contents
 const partbFileContents: { [key: number]: string } = {
-  1: `// make folder
+  1: `// ===================================================
+// STEP 1: Create Project Folder
+// ===================================================
+
+// mkdir complaint-management
+// cd complaint-management
+
+
+
+// ===================================================
+// STEP 2: Initialize npm
+// ===================================================
+
 // npm init -y
-// npm i express 
-// npm install mongoose
+
+
+
+// ===================================================
+// STEP 3: Install Required Packages
+// ===================================================
+
+// npm install express
 // npm install mongodb
-// file 1 : app1.js
+// npm install mongoose
+
+
+
+// ===================================================
+// FILE 1 : app1.js
+// ===================================================
 
 const express = require("express");
 const { MongoClient, ObjectId } = require("mongodb");
@@ -361,6 +385,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 let col;
+
 MongoClient.connect("mongodb://127.0.0.1:27017")
   .then(c => {
     col = c.db("complaintDB").collection("complaints");
@@ -368,7 +393,7 @@ MongoClient.connect("mongodb://127.0.0.1:27017")
   });
 
 app.get("/", (_, res) =>
-  res.sendFile(path.join(__dirname, "index.html"))
+  res.sendFile(path.join(__dirname, "index1.html"))
 );
 
 app.post("/complaints", async (req, res) => {
@@ -388,9 +413,16 @@ app.get("/complaints", async (_, res) =>
   res.json(await col.find().toArray())
 );
 
-app.listen(3000, () => console.log("Server running"));
+app.listen(3000, () =>
+  console.log("Server running on http://localhost:3000")
+);
 
-// file 2 : index1.html
+
+
+// ===================================================
+// FILE 2 : index1.html
+// ===================================================
+
 <!DOCTYPE html>
 <html>
 <body>
@@ -419,22 +451,56 @@ app.listen(3000, () => console.log("Server running"));
 
 <script>
 const load = () =>
-  fetch("/complaints").then(r=>r.json())
-  .then(d=>list.innerHTML=d.map(c=>
-    \`<li>\${c._id} | \${c.userName} | \${c.issue} | \${c.status}</li>\`
-  ).join(""));
+  fetch("/complaints")
+    .then(r => r.json())
+    .then(d =>
+      list.innerHTML = d.map(c =>
+        \`<li>\${c._id} | \${c.userName} | \${c.issue} | \${c.status}</li>\`
+      ).join("")
+    );
 
 const update = () =>
-  fetch("/complaints/"+id.value,{
-    method:"PUT",
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({status:st.value})
-  }).then(r=>r.json()).then(a=>alert(a.message));
+  fetch("/complaints/" + id.value, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ status: st.value })
+  })
+  .then(r => r.json())
+  .then(a => alert(a.message));
 </script>
 
 </body>
 </html>`,
-  2: `// app2.js
+  2: `// ===================================================
+// STEP 1: Create Project Folder
+// ===================================================
+
+// mkdir student-exam-fee
+// cd student-exam-fee
+
+
+
+// ===================================================
+// STEP 2: Initialize npm
+// ===================================================
+
+// npm init -y
+
+
+
+// ===================================================
+// STEP 3: Install Required Packages
+// ===================================================
+
+// npm install express
+// npm install mongodb
+// npm install mongoose
+
+
+
+// ===================================================
+// FILE 1 : app2.js
+// ===================================================
 
 const e = require("express");
 const { MongoClient } = require("mongodb");
@@ -445,6 +511,7 @@ app.use(e.urlencoded({ extended: true }));
 app.use(e.json());
 
 let col;
+
 MongoClient.connect("mongodb://127.0.0.1:27017")
   .then(c => {
     col = c.db("collegeDB").collection("students");
@@ -452,7 +519,7 @@ MongoClient.connect("mongodb://127.0.0.1:27017")
   });
 
 app.get("/", (_, r) =>
-  r.sendFile(p.join(__dirname, "index.html"))
+  r.sendFile(p.join(__dirname, "index2.html"))
 );
 
 app.post("/students", async (req, r) => {
@@ -467,23 +534,34 @@ app.post("/students", async (req, r) => {
 });
 
 app.delete("/students/unpaid", async (_, r) => {
-  const d = await col.deleteMany({ Exam_fee: { $in: [0, null] } });
-  r.json({ message: "Unpaid students deleted", deleted: d.deletedCount });
+  const d = await col.deleteMany({
+    Exam_fee: { $in: [0, null] }
+  });
+  r.json({
+    message: "Unpaid students deleted",
+    deleted: d.deletedCount
+  });
 });
 
 app.get("/students", async (_, r) =>
   r.json(await col.find().toArray())
 );
 
-app.listen(3000, () => console.log("Server running"));
+app.listen(3000, () =>
+  console.log("Server running on http://localhost:3000")
+);
 
-// index2.html 
+
+
+// ===================================================
+// FILE 2 : index2.html
+// ===================================================
 
 <!DOCTYPE html>
 <html>
 <body>
 
-<h2>Student Exam Fee</h2>
+<h2>Student Exam Fee Management</h2>
 
 <form action="/students" method="POST">
   <input name="name" placeholder="Name" required>
@@ -502,14 +580,18 @@ app.listen(3000, () => console.log("Server running"));
 
 <script>
 const load = () =>
-  fetch("/students").then(r=>r.json())
-  .then(d=>list.innerHTML=d.map(s=>
-    \`<li>\${s.Student_name} | \${s.USN} | Sem \${s.Semester} | Fee \${s.Exam_fee}</li>\`
-  ).join(""));
+  fetch("/students")
+    .then(r => r.json())
+    .then(d =>
+      list.innerHTML = d.map(s =>
+        \`<li>\${s.Student_name} | \${s.USN} | Sem \${s.Semester} | Fee \${s.Exam_fee}</li>\`
+      ).join("")
+    );
 
 const del = () =>
-  fetch("/students/unpaid",{method:"DELETE"})
-  .then(r=>r.json()).then(a=>alert(a.message));
+  fetch("/students/unpaid", { method: "DELETE" })
+    .then(r => r.json())
+    .then(a => alert(a.message));
 </script>
 
 </body>
@@ -520,21 +602,26 @@ const del = () =>
 // mkdir employee-hr
 // cd employee-hr
 
+
+
 // ===============================
 // npm init
 // ===============================
 // npm init -y
 
+
+
 // ===============================
 // install packages
 // ===============================
 // npm i express
-// npm install mongoose
 // npm install mongodb
+// npm install mongoose
+
 
 
 // ===============================
-// file 1 : app1.js
+// file 1 : app.js
 // ===============================
 
 const express = require("express");
@@ -547,19 +634,16 @@ app.use(express.urlencoded({ extended: true }));
 
 let col;
 
-// MongoDB connection
 MongoClient.connect("mongodb://127.0.0.1:27017")
   .then(c => {
     col = c.db("HR").collection("employees");
     console.log("MongoDB connected");
   });
 
-// Load HTML page
 app.get("/", (_, res) =>
   res.sendFile(path.join(__dirname, "index1.html"))
 );
 
-// Insert employee details
 app.post("/employees", async (req, res) => {
   await col.insertOne({
     emp_name: req.body.emp_name,
@@ -572,15 +656,17 @@ app.post("/employees", async (req, res) => {
   res.redirect("/");
 });
 
-// Get employees with salary > 50000
 app.get("/employees/highsalary", async (_, res) => {
-  const data = await col.find({ salary: { $gt: 50000 } }).toArray();
+  const data = await col.find({
+    salary: { $gt: 50000 }
+  }).toArray();
   res.json(data);
 });
 
 app.listen(3000, () =>
   console.log("Server running on http://localhost:3000")
 );
+
 
 
 // ===============================
@@ -605,7 +691,7 @@ app.listen(3000, () =>
 
 <hr>
 
-<button onclick="load()">Show Employees with Salary > 50000</button>
+<button onclick="load()">Show Employees with Salary &gt; 50000</button>
 
 <ul id="list"></ul>
 
@@ -803,7 +889,7 @@ MongoClient.connect("mongodb://127.0.0.1:27017")
 
 // Load HTML page
 app.get("/", (_, res) =>
-  res.sendFile(path.join(__dirname, "index1.html"))
+  res.sendFile(path.join(__dirname, "index5.html"))
 );
 
 // Insert student record
@@ -1076,7 +1162,7 @@ MongoClient.connect("mongodb://127.0.0.1:27017")
 
 // Load HTML page
 app.get("/", (_, res) =>
-  res.sendFile(path.join(__dirname, "index1.html"))
+  res.sendFile(path.join(__dirname, "index7.html"))
 );
 
 // Insert enrollment record
@@ -1184,7 +1270,7 @@ const update = () =>
 // npm install mongoose
 
 // ===============================
-// file : app1.js
+// file : app.js
 // ===============================
 
 const express = require("express");
@@ -1292,7 +1378,7 @@ MongoClient.connect("mongodb://127.0.0.1:27017")
 
 // Load HTML page
 app.get("/", (_, res) =>
-  res.sendFile(path.join(__dirname, "index1.html"))
+  res.sendFile(path.join(__dirname, "index9.html"))
 );
 
 // Insert student details

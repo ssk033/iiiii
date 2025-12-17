@@ -9,7 +9,7 @@
 // npm install mongoose
 
 // ===============================
-// file : app1.js
+// file : app.js
 // ===============================
 
 const express = require("express");
