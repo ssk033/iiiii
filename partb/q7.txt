@@ -1,24 +1,31 @@
+===================================================
+Q7(b) COURSE ENROLLMENT MANAGEMENT SYSTEM
+Node.js + Express + MongoDB
+===================================================
+
+
 // ===============================
-// make folder
+// STEP 1: Create Project Folder
 // ===============================
 // mkdir course-enrollment
 // cd course-enrollment
 
+
 // ===============================
-// npm init
+// STEP 2: Initialize npm
 // ===============================
 // npm init -y
 
+
 // ===============================
-// install packages
+// STEP 3: Install Packages
 // ===============================
-// npm i express
-// npm install mongoose
+// npm install express
 // npm install mongodb
 
 
 // ===============================
-// file 1 : app7.js
+// FILE 1 : app7.js
 // ===============================
 
 const express = require("express");
@@ -26,62 +33,62 @@ const { MongoClient } = require("mongodb");
 const path = require("path");
 
 const app = express();
-app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 let col;
 
-// MongoDB connection
+// MongoDB Connection
 MongoClient.connect("mongodb://127.0.0.1:27017")
-  .then(c => {
-    col = c.db("courseDB").collection("enrollments");
-    console.log("MongoDB connected");
+  .then(client => {
+    col = client.db("courseDB").collection("enrollments");
+    console.log("MongoDB Connected");
   });
 
-// Load HTML page
-app.get("/", (_, res) =>
-  res.sendFile(path.join(__dirname, "index7.html"))
-);
+// Load HTML Page
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
+});
 
-// Insert enrollment record
-app.post("/enrollments", async (req, res) => {
-  await col.insertOne({
+// Insert Enrollment
+app.post("/enrollments", (req, res) => {
+  col.insertOne({
     student_id: req.body.student_id,
     name: req.body.name,
-    course_name: req.body.course_name,
+    course: req.body.course_name,
     duration: req.body.duration,
     status: "active"
   });
   res.redirect("/");
 });
 
-// Get all active enrollments
-app.get("/enrollments/active", async (_, res) => {
+// Get Active Enrollments
+app.get("/enrollments/active", async (req, res) => {
   const data = await col.find({ status: "active" }).toArray();
   res.json(data);
 });
 
-// Update enrollment status to completed
+// Update Status to Completed (by Student ID or Course Name)
 app.put("/enrollments", async (req, res) => {
   await col.updateMany(
     {
       $or: [
         { student_id: req.body.student_id },
-        { course_name: req.body.course_name }
+        { course: req.body.course_name }
       ]
     },
     { $set: { status: "completed" } }
   );
-  res.json({ message: "Enrollment Updated" });
+  res.send("Status Updated");
 });
 
-app.listen(3000, () =>
-  console.log("Server running on http://localhost:3000")
-);
+app.listen(3000, () => {
+  console.log("Server running on http://localhost:3000");
+});
 
 
 // ===============================
-// file 2 : index7.html
+// FILE 2 : index.html
 // ===============================
 
 <!DOCTYPE html>
@@ -90,7 +97,6 @@ app.listen(3000, () =>
 
 <h2>Course Enrollment Management</h2>
 
-<!-- Add enrollment -->
 <form action="/enrollments" method="POST">
   <input name="student_id" placeholder="Student ID" required>
   <input name="name" placeholder="Name" required>
@@ -101,28 +107,27 @@ app.listen(3000, () =>
 
 <hr>
 
-<!-- Update enrollment -->
 <input id="sid" placeholder="Student ID">
 <input id="cname" placeholder="Course Name">
 <button onclick="update()">Mark Completed</button>
 
 <hr>
 
-<!-- View active enrollments -->
 <button onclick="load()">Show Active Enrollments</button>
 <ul id="list"></ul>
 
 <script>
-const load = () =>
+function load() {
   fetch("/enrollments/active")
     .then(r => r.json())
-    .then(d =>
+    .then(d => {
       list.innerHTML = d.map(e =>
-        `<li>${e.student_id} | ${e.name} | ${e.course_name} | ${e.status}</li>`
-      ).join("")
-    );
+        "<li>" + e.student_id + " | " + e.name + " | " + e.course + " | " + e.status + "</li>"
+      ).join("");
+    });
+}
 
-const update = () =>
+function update() {
   fetch("/enrollments", {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
@@ -131,9 +136,18 @@ const update = () =>
       course_name: cname.value
     })
   })
-  .then(r => r.json())
-  .then(a => alert(a.message));
+  .then(r => r.text())
+  .then(msg => alert(msg));
+}
 </script>
 
 </body>
 </html>
+
+
+===================================================
+HOW TO RUN
+===================================================
+1) Start MongoDB
+2) Run: node app7.js
+3) Open browser: http://localhost:3000

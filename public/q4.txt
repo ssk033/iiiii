@@ -1,3 +1,9 @@
+===================================================
+Q4(b) INTERNSHIP TRACKING SYSTEM
+Node.js + Express + MongoDB
+===================================================
+
+
 // ===================================================
 // STEP 1: Create Project Folder
 // ===================================================
@@ -19,68 +25,68 @@
 
 // npm install express
 // npm install mongodb
-// npm install mongoose
 
 
 // ===================================================
 // FILE 1 : app4.js
 // ===================================================
 
-const e = require("express");
+const express = require("express");
 const { MongoClient, ObjectId } = require("mongodb");
-const p = require("path");
+const path = require("path");
 
-const app = e();
-app.use(e.urlencoded({ extended: true }));
-app.use(e.json());
+const app = express();
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 let col;
 
-// MongoDB connection
+// MongoDB Connection
 MongoClient.connect("mongodb://127.0.0.1:27017")
-  .then(c => {
-    col = c.db("internshipDB").collection("internships");
-    console.log("MongoDB connected");
+  .then(client => {
+    col = client.db("internshipDB").collection("internships");
+    console.log("MongoDB Connected");
   });
 
-// Load HTML page
-app.get("/", (_, r) =>
-  r.sendFile(p.join(__dirname, "index4.html"))
-);
-
-// Insert internship details
-app.post("/internships", async (req, r) => {
-  await col.insertOne({
-    Student_ID: req.body.sid,
-    Name: req.body.name,
-    Company: req.body.company,
-    Duration: req.body.duration,
-    Status: req.body.status
-  });
-  r.redirect("/");
+// Load HTML
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
 });
 
-// Get interns working in Infosys
-app.get("/internships/infosys", async (_, r) =>
-  r.json(await col.find({ Company: "Infosys" }).toArray())
-);
+// Insert Internship
+app.post("/internships", (req, res) => {
+  col.insertOne({
+    sid: req.body.sid,
+    name: req.body.name,
+    company: req.body.company,
+    duration: req.body.duration,
+    status: "Ongoing"
+  });
+  res.redirect("/");
+});
 
-// Update internship status
-app.put("/internships/:id", async (req, r) => {
+// Get all Infosys interns
+app.get("/internships/infosys", async (req, res) => {
+  const data = await col.find({ company: "Infosys" }).toArray();
+  res.json(data);
+});
+
+// Update Status
+app.put("/internships/:id", async (req, res) => {
   await col.updateOne(
     { _id: new ObjectId(req.params.id) },
-    { $set: { Status: req.body.status } }
+    { $set: { status: req.body.status } }
   );
-  r.json({ message: "Status Updated" });
+  res.send("Status Updated");
 });
 
-app.listen(3000, () =>
-  console.log("Server running on http://localhost:3000")
-);
+app.listen(3000, () => {
+  console.log("Server running on http://localhost:3000");
+});
 
 
 // ===================================================
-// FILE 2 : index4.html
+// FILE 2 : index.html
 // ===================================================
 
 <!DOCTYPE html>
@@ -89,20 +95,17 @@ app.listen(3000, () =>
 
 <h2>Internship Tracking System</h2>
 
-<!-- Add internship -->
 <form action="/internships" method="POST">
   <input name="sid" placeholder="Student ID" required>
-  <input name="name" placeholder="Student Name" required>
+  <input name="name" placeholder="Name" required>
   <input name="company" placeholder="Company" required>
   <input name="duration" placeholder="Duration" required>
-  <input name="status" value="Ongoing">
-  <button>Add Internship</button>
+  <button>Add</button>
 </form>
 
 <hr>
 
-<!-- Update internship status -->
-<input id="id" placeholder="Internship ID">
+<input id="iid" placeholder="Internship ID">
 <select id="st">
   <option>Ongoing</option>
   <option>Completed</option>
@@ -111,29 +114,37 @@ app.listen(3000, () =>
 
 <hr>
 
-<!-- View Infosys interns -->
 <button onclick="load()">Show Infosys Interns</button>
 <ul id="list"></ul>
 
 <script>
-const load = () =>
+function load() {
   fetch("/internships/infosys")
     .then(r => r.json())
-    .then(d =>
+    .then(d => {
       list.innerHTML = d.map(i =>
-        `<li>${i._id} | ${i.Student_ID} | ${i.Name} | ${i.Duration} | ${i.Status}</li>`
-      ).join("")
-    );
+        "<li>" + i.sid + " | " + i.name + " | " + i.company + " | " + i.status + "</li>"
+      ).join("");
+    });
+}
 
-const update = () =>
-  fetch("/internships/" + id.value, {
+function update() {
+  fetch("/internships/" + iid.value, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ status: st.value })
-  })
-  .then(r => r.json())
-  .then(a => alert(a.message));
+  }).then(r => r.text())
+    .then(msg => alert(msg));
+}
 </script>
 
 </body>
 </html>
+
+
+===================================================
+HOW TO RUN
+===================================================
+1) Start MongoDB
+2) Run: node app4.js
+3) Open browser: http://localhost:3000

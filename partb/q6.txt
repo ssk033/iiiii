@@ -1,3 +1,9 @@
+===================================================
+Q6(b) HOSPITAL BED MANAGEMENT SYSTEM
+Node.js + Express + MongoDB
+===================================================
+
+
 // ===================================================
 // STEP 1: Create Project Folder
 // ===================================================
@@ -19,95 +25,81 @@
 
 // npm install express
 // npm install mongodb
-// npm install mongoose
 
 
 // ===================================================
 // FILE 1 : app6.js
 // ===================================================
 
-const e = require("express");
+const express = require("express");
 const { MongoClient } = require("mongodb");
-const p = require("path");
+const path = require("path");
 
-const app = e();
-app.use(e.urlencoded({ extended: true }));
-app.use(e.json());
+const app = express();
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 let col;
 
-// MongoDB connection
+// MongoDB Connection
 MongoClient.connect("mongodb://127.0.0.1:27017")
-  .then(c => {
-    col = c.db("hospitalDB").collection("hospitals");
-    console.log("MongoDB connected");
+  .then(client => {
+    col = client.db("hospitalDB").collection("hospitals");
+    console.log("MongoDB Connected");
   });
 
-// Load HTML page
-app.get("/", (_, r) =>
-  r.sendFile(p.join(__dirname, "index6.html"))
-);
+// Load HTML Page
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
+});
 
-// Insert hospital details
-app.post("/hospitals", async (req, r) => {
-  const { hid, name, location, total, occupied } = req.body;
-  await col.insertOne({
-    Hospital_ID: hid,
-    Name: name,
-    Location: location,
-    Total_Beds: Number(total),
-    Occupied_Beds: Number(occupied)
+// Insert Hospital Details
+app.post("/hospitals", (req, res) => {
+  col.insertOne({
+    hid: req.body.hid,
+    name: req.body.name,
+    location: req.body.location,
+    total: Number(req.body.total),
+    occupied: Number(req.body.occupied)
   });
-  r.redirect("/");
+  res.redirect("/");
 });
 
-// Admit a patient (increment occupied beds)
-app.post("/hospitals/admit", async (req, r) => {
-  const u = await col.updateOne(
-    { Hospital_ID: req.body.hid },
-    { $inc: { Occupied_Beds: 1 } }
+// Admit Patient (Increase Occupied Beds)
+app.post("/hospitals/admit", async (req, res) => {
+  const result = await col.updateOne(
+    { hid: req.body.hid },
+    { $inc: { occupied: 1 } }
   );
-
-  r.send(
-    u.matchedCount
-      ? "Patient admitted <br><a href='/'>Back</a>"
-      : "Hospital not found <br><a href='/'>Back</a>"
-  );
+  res.send("Patient Admitted");
 });
 
-// Display hospitals with available beds < 10
-app.get("/hospitals/lowbeds", async (_, r) =>
-  r.json(
-    await col.find({
-      $expr: {
-        $lt: [
-          { $subtract: ["$Total_Beds", "$Occupied_Beds"] },
-          10
-        ]
-      }
-    }).toArray()
-  )
-);
+// Get Hospitals with Available Beds < 10
+app.get("/hospitals/lowbeds", async (req, res) => {
+  const data = await col.find({
+    $expr: { $lt: [{ $subtract: ["$total", "$occupied"] }, 10] }
+  }).toArray();
+  res.json(data);
+});
 
-app.listen(3000, () =>
-  console.log("Server running on http://localhost:3000")
-);
+app.listen(3000, () => {
+  console.log("Server running on http://localhost:3000");
+});
 
 
 // ===================================================
-// FILE 2 : index6.html
+// FILE 2 : index.html
 // ===================================================
 
 <!DOCTYPE html>
 <html>
 <body>
 
-<h2>Hospital Bed Management System</h2>
+<h2>Hospital Bed Management</h2>
 
-<!-- Add hospital -->
 <form action="/hospitals" method="POST">
   <input name="hid" placeholder="Hospital ID" required>
-  <input name="name" placeholder="Hospital Name" required>
+  <input name="name" placeholder="Name" required>
   <input name="location" placeholder="Location" required>
   <input name="total" placeholder="Total Beds" required>
   <input name="occupied" placeholder="Occupied Beds" required>
@@ -116,7 +108,6 @@ app.listen(3000, () =>
 
 <hr>
 
-<!-- Admit patient -->
 <form action="/hospitals/admit" method="POST">
   <input name="hid" placeholder="Hospital ID" required>
   <button>Admit Patient</button>
@@ -124,21 +115,29 @@ app.listen(3000, () =>
 
 <hr>
 
-<!-- Show hospitals with low availability -->
-<button onclick="load()">Hospitals with &lt; 10 Available Beds</button>
+<button onclick="load()">Show Hospitals with &lt; 10 Available Beds</button>
 
 <ul id="list"></ul>
 
 <script>
-const load = () =>
+function load() {
   fetch("/hospitals/lowbeds")
     .then(r => r.json())
-    .then(d =>
+    .then(d => {
       list.innerHTML = d.map(h =>
-        `<li>${h.Name} (${h.Location}) | Available: ${h.Total_Beds - h.Occupied_Beds}</li>`
-      ).join("")
-    );
+        "<li>" + h.name + " | Available: " + (h.total - h.occupied) + "</li>"
+      ).join("");
+    });
+}
 </script>
 
 </body>
 </html>
+
+
+===================================================
+HOW TO RUN
+===================================================
+1) Start MongoDB
+2) Run: node app6.js
+3) Open browser: http://localhost:3000

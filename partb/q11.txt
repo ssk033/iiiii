@@ -1,24 +1,31 @@
+===================================================
+Q11(b) ATTENDANCE MANAGEMENT SYSTEM
+Node.js + Express + MongoDB
+===================================================
+
+
 // ===============================
-// make folder
+// STEP 1: Create Folder
 // ===============================
 // mkdir attendance-system
 // cd attendance-system
 
+
 // ===============================
-// npm init
+// STEP 2: Initialize npm
 // ===============================
 // npm init -y
 
+
 // ===============================
-// install packages
+// STEP 3: Install Packages
 // ===============================
-// npm i express
+// npm install express
 // npm install mongodb
-// npm install mongoose
 
 
 // ===============================
-// file 1 : app1.js
+// FILE 1 : app1.js
 // ===============================
 
 const express = require("express");
@@ -26,49 +33,53 @@ const { MongoClient } = require("mongodb");
 const path = require("path");
 
 const app = express();
-app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 let col;
 
-// MongoDB connection
+// MongoDB Connection
 MongoClient.connect("mongodb://127.0.0.1:27017")
-  .then(c => {
-    col = c.db("attendanceDB").collection("students");
-    console.log("MongoDB connected");
+  .then(client => {
+    col = client.db("attendanceDB").collection("students");
+    console.log("MongoDB Connected");
   });
 
-// Load HTML page
-app.get("/", (_, res) =>
-  res.sendFile(path.join(__dirname, "index1.html"))
-);
+// Load HTML
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
+});
 
-// Insert attendance record
-app.post("/attendance", async (req, res) => {
-  const percentage = (req.body.attended / req.body.total) * 100;
+// Insert Attendance
+app.post("/attendance", (req, res) => {
+  const attended = Number(req.body.attended);
+  const total = Number(req.body.total);
+  const percent = (attended / total) * 100;
 
-  await col.insertOne({
+  col.insertOne({
     name: req.body.name,
     usn: req.body.usn,
-    attended: Number(req.body.attended),
-    total: Number(req.body.total),
-    percentage: percentage
+    attended: attended,
+    total: total,
+    percentage: percent
   });
+
   res.redirect("/");
 });
 
-// Get students with attendance < 75%
-app.get("/attendance/low", async (_, res) =>
-  res.json(await col.find({ percentage: { $lt: 75 } }).toArray())
-);
+// Get Students with Attendance < 75%
+app.get("/attendance/low", async (req, res) => {
+  const data = await col.find({ percentage: { $lt: 75 } }).toArray();
+  res.json(data);
+});
 
-app.listen(3000, () =>
-  console.log("Server running on http://localhost:3000")
-);
+app.listen(3000, () => {
+  console.log("Server running on http://localhost:3000");
+});
 
 
 // ===============================
-// file 2 : index1.html
+// FILE 2 : index.html
 // ===============================
 
 <!DOCTYPE html>
@@ -77,7 +88,6 @@ app.listen(3000, () =>
 
 <h2>Attendance Management System</h2>
 
-<!-- Add attendance -->
 <form action="/attendance" method="POST">
   <input name="name" placeholder="Student Name" required>
   <input name="usn" placeholder="USN" required>
@@ -88,21 +98,29 @@ app.listen(3000, () =>
 
 <hr>
 
-<!-- Show low attendance -->
 <button onclick="load()">Show Attendance Below 75%</button>
 
 <ul id="list"></ul>
 
 <script>
-const load = () =>
+function load() {
   fetch("/attendance/low")
     .then(r => r.json())
-    .then(d =>
+    .then(d => {
       list.innerHTML = d.map(s =>
-        `<li>${s.name} | ${s.usn} | ${s.percentage.toFixed(2)}%</li>`
-      ).join("")
-    );
+        "<li>" + s.name + " | " + s.usn + " | " + s.percentage.toFixed(2) + "%</li>"
+      ).join("");
+    });
+}
 </script>
 
 </body>
 </html>
+
+
+===================================================
+HOW TO RUN
+===================================================
+1) Start MongoDB
+2) Run: node app1.js
+3) Open browser: http://localhost:3000

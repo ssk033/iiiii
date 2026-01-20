@@ -1,10 +1,15 @@
+===================================================
+Q2(b) STUDENT EXAM FEE MANAGEMENT SYSTEM
+Node.js + Express + MongoDB
+===================================================
+
+
 // ===================================================
 // STEP 1: Create Project Folder
 // ===================================================
 
 // mkdir student-exam-fee
 // cd student-exam-fee
-
 
 
 // ===================================================
@@ -14,74 +19,67 @@
 // npm init -y
 
 
-
 // ===================================================
 // STEP 3: Install Required Packages
 // ===================================================
 
 // npm install express
 // npm install mongodb
-// npm install mongoose
-
 
 
 // ===================================================
-// FILE 1 : app2.js
+// FILE 1 : app.js
 // ===================================================
 
-const e = require("express");
+const express = require("express");
 const { MongoClient } = require("mongodb");
-const p = require("path");
+const path = require("path");
 
-const app = e();
-app.use(e.urlencoded({ extended: true }));
-app.use(e.json());
+const app = express();
+app.use(express.urlencoded({ extended: true }));
 
 let col;
 
 MongoClient.connect("mongodb://127.0.0.1:27017")
-  .then(c => {
-    col = c.db("collegeDB").collection("students");
-    console.log("MongoDB connected");
+  .then(client => {
+    col = client.db("collegeDB").collection("students");
+    console.log("MongoDB Connected");
   });
 
-app.get("/", (_, r) =>
-  r.sendFile(p.join(__dirname, "index2.html"))
-);
-
-app.post("/students", async (req, r) => {
-  const { name, usn, sem, fee } = req.body;
-  await col.insertOne({
-    Student_name: name,
-    USN: usn,
-    Semester: sem,
-    Exam_fee: +fee
-  });
-  r.redirect("/");
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
 });
 
-app.delete("/students/unpaid", async (_, r) => {
-  const d = await col.deleteMany({
-    Exam_fee: { $in: [0, null] }
+// Insert Student
+app.post("/students", (req, res) => {
+  col.insertOne({
+    name: req.body.name,
+    usn: req.body.usn,
+    sem: req.body.sem,
+    fee: Number(req.body.fee)
   });
-  r.json({
-    message: "Unpaid students deleted",
-    deleted: d.deletedCount
-  });
+  res.redirect("/");
 });
 
-app.get("/students", async (_, r) =>
-  r.json(await col.find().toArray())
-);
+// Delete students with fee = 0 or null
+app.delete("/students/unpaid", async (req, res) => {
+  const result = await col.deleteMany({ fee: { $in: [0, null] } });
+  res.send("Deleted " + result.deletedCount + " unpaid students");
+});
 
-app.listen(3000, () =>
-  console.log("Server running on http://localhost:3000")
-);
+// Show all students
+app.get("/students", async (req, res) => {
+  const data = await col.find().toArray();
+  res.json(data);
+});
 
+app.listen(3000, () => {
+  console.log("Server running on http://localhost:3000");
+});
 
 
 // ===================================================
-// FILE 2 : index2.html
+// FILE 2 : index.html
 // ===================================================
 
 <!DOCTYPE html>
@@ -91,7 +89,7 @@ app.listen(3000, () =>
 <h2>Student Exam Fee Management</h2>
 
 <form action="/students" method="POST">
-  <input name="name" placeholder="Name" required>
+  <input name="name" placeholder="Student Name" required>
   <input name="usn" placeholder="USN" required>
   <input name="sem" placeholder="Semester" required>
   <input name="fee" placeholder="Exam Fee">
@@ -100,26 +98,36 @@ app.listen(3000, () =>
 
 <hr>
 
-<button onclick="del()">Delete Fee = 0</button>
 <button onclick="load()">Show Students</button>
+<button onclick="del()">Delete Unpaid Students</button>
 
 <ul id="list"></ul>
 
 <script>
-const load = () =>
+function load() {
   fetch("/students")
     .then(r => r.json())
-    .then(d =>
+    .then(d => {
       list.innerHTML = d.map(s =>
-        `<li>${s.Student_name} | ${s.USN} | Sem ${s.Semester} | Fee ${s.Exam_fee}</li>`
-      ).join("")
-    );
+        "<li>" + s.name + " | " + s.usn + " | Sem " + s.sem + " | Fee " + s.fee + "</li>"
+      ).join("");
+    });
+}
 
-const del = () =>
+function del() {
   fetch("/students/unpaid", { method: "DELETE" })
-    .then(r => r.json())
-    .then(a => alert(a.message));
+    .then(r => r.text())
+    .then(msg => alert(msg));
+}
 </script>
 
 </body>
 </html>
+
+
+===================================================
+HOW TO RUN
+===================================================
+1) Start MongoDB
+2) Run: node app.js
+3) Open browser: http://localhost:3000

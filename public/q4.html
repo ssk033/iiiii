@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Employee Change</title>
+
+  <script src="react/react.development.js"></script>
+  <script src="react/react-dom.development.js"></script>
+  <script src="react/babel.min.js"></script>
+</head>
+<body>
+
+<div id="root"></div>
+
+<script type="text/babel">
+
+class Employee extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.employees = [
+      { name: "Rahul", address: "Bangalore", company: "TCS" },
+      { name: "Amit", address: "Mysore", company: "Infosys" },
+      { name: "Neha", address: "Delhi", company: "Wipro" },
+      { name: "Priya", address: "Chennai", company: "HCL" },
+      { name: "Rohan", address: "Pune", company: "Capgemini" },
+      { name: "Sneha", address: "Hyderabad", company: "Tech Mahindra" },
+      { name: "Karthik", address: "Coimbatore", company: "Zoho" },
+      { name: "Anjali", address: "Mumbai", company: "Accenture" }
+    ];
+
+    this.state = this.employees[0];
+  }
+
+  changeData = () => {
+    const randomIndex = Math.floor(Math.random() * this.employees.length);
+    this.setState(this.employees[randomIndex]);
+  }
+
+  render() {
+    return (
+      <div>
+        <h2>Employee Details</h2>
+        <p><b>Name:</b> {this.state.name}</p>
+        <p><b>Address:</b> {this.state.address}</p>
+        <p><b>Company:</b> {this.state.company}</p>
+        <button onClick={this.changeData}>CHANGE</button>
+      </div>
+    );
+  }
+}
+
+ReactDOM.render(<Employee />, document.getElementById("root"));
+
+</script>
+
+</body>
+</html>

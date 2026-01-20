@@ -2,9 +2,9 @@
 q1.html
 q2.html
 q3.html
-q4.jsx
+q4.html
 q5.html
-q6.jsx
+q6.html
 q7.js
 q8.js
 q9.html
