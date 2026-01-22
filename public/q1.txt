@@ -24,23 +24,29 @@ STEP 4: Create Files
 ===================================================
 FILE 1 : app.js
 ===================================================
-
 const express = require("express");
 const { MongoClient, ObjectId } = require("mongodb");
 const path = require("path");
 
 const app = express();
-app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
-let collection;
+let col;
+const url = "mongodb://127.0.0.1:27017";
 
-// MongoDB Connection
-MongoClient.connect("mongodb://127.0.0.1:27017")
+// MongoDB Connection (Better Way)
+MongoClient.connect(url)
   .then(client => {
-    const db = client.db("complaintDB");
-    collection = db.collection("complaints");
     console.log("MongoDB Connected");
+    col = client.db("complaintDB").collection("complaints");
+
+    app.listen(3000, () => {
+      console.log("Server running on http://localhost:3000");
+    });
+  })
+  .catch(err => {
+    console.log("MongoDB Connection Error:", err.message);
   });
 
 // Home Page
@@ -50,7 +56,7 @@ app.get("/", (req, res) => {
 
 // POST: Submit New Complaint
 app.post("/complaints", async (req, res) => {
-  await collection.insertOne({
+  await col.insertOne({
     userName: req.body.userName,
     issue: req.body.issue,
     status: "Pending"
@@ -60,7 +66,7 @@ app.post("/complaints", async (req, res) => {
 
 // PUT: Update Complaint Status
 app.put("/complaints/:id", async (req, res) => {
-  await collection.updateOne(
+  await col.updateOne(
     { _id: new ObjectId(req.params.id) },
     { $set: { status: req.body.status } }
   );
@@ -69,13 +75,8 @@ app.put("/complaints/:id", async (req, res) => {
 
 // GET: Fetch Pending Complaints
 app.get("/complaints/pending", async (req, res) => {
-  const pending = await collection.find({ status: "Pending" }).toArray();
+  const pending = await col.find({ status: "Pending" }).toArray();
   res.json(pending);
-});
-
-// Server Start
-app.listen(3000, () => {
-  console.log("Server running at http://localhost:3000");
 });
 
 ===================================================
@@ -138,4 +139,4 @@ HOW TO RUN
 ===================================================
 1) Start MongoDB
 2) Run: node app.js
-3) Open: http://localhost:3000
+3) Open: http://loca

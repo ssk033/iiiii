@@ -40,12 +40,23 @@ app.use(express.urlencoded({ extended: true }));
 
 let col;
 
-MongoClient.connect("mongodb://127.0.0.1:27017")
+const url = "mongodb://127.0.0.1:27017";
+
+// MongoDB Connection (Better Practice)
+MongoClient.connect(url)
   .then(client => {
-    col = client.db("HR").collection("employees");
     console.log("MongoDB Connected");
+    col = client.db("hrDB").collection("employees");
+
+    app.listen(3000, () => {
+      console.log("Server running on http://localhost:3000");
+    });
+  })
+  .catch(err => {
+    console.log("MongoDB Connection Error:", err.message);
   });
 
+// Home Page
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
@@ -67,10 +78,6 @@ app.post("/employees", (req, res) => {
 app.get("/employees/highsalary", async (req, res) => {
   const data = await col.find({ salary: { $gt: 50000 } }).toArray();
   res.json(data);
-});
-
-app.listen(3000, () => {
-  console.log("Server running on http://localhost:3000");
 });
 
 

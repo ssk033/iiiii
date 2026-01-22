@@ -37,12 +37,20 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 let col;
+const url = "mongodb://127.0.0.1:27017";
 
-// MongoDB Connection
-MongoClient.connect("mongodb://127.0.0.1:27017")
+// MongoDB Connection (Better Practice)
+MongoClient.connect(url)
   .then(client => {
-    col = client.db("productDB").collection("products");
     console.log("MongoDB Connected");
+    col = client.db("productDB").collection("products");
+
+    app.listen(3000, () => {
+      console.log("Server running on http://localhost:3000");
+    });
+  })
+  .catch(err => {
+    console.log("MongoDB Connection Error:", err.message);
   });
 
 // Load HTML
@@ -73,10 +81,6 @@ app.get("/products/cheap", async (req, res) => {
   res.json(data);
 });
 
-app.listen(3000, () => {
-  console.log("Server running on http://localhost:3000");
-});
-
 
 // ===============================
 // FILE 2 : index.html
@@ -98,7 +102,7 @@ app.listen(3000, () => {
 
 <hr>
 
-<button onclick="load()">Show Products (Final Price < 1000)</button>
+<button onclick="load()">Show Products (Final Price &lt; 1000)</button>
 <ul id="list"></ul>
 
 <script>

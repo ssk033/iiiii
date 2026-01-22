@@ -1,4 +1,4 @@
-===================================================
+\===================================================
 Q4(b) INTERNSHIP TRACKING SYSTEM
 Node.js + Express + MongoDB
 ===================================================
@@ -40,12 +40,20 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 let col;
+const url = "mongodb://127.0.0.1:27017";
 
-// MongoDB Connection
-MongoClient.connect("mongodb://127.0.0.1:27017")
+// MongoDB Connection (Better Practice)
+MongoClient.connect(url)
   .then(client => {
-    col = client.db("internshipDB").collection("internships");
     console.log("MongoDB Connected");
+    col = client.db("internshipDB").collection("internships");
+
+    app.listen(3000, () => {
+      console.log("Server running on http://localhost:3000");
+    });
+  })
+  .catch(err => {
+    console.log("MongoDB Connection Error:", err.message);
   });
 
 // Load HTML
@@ -78,10 +86,6 @@ app.put("/internships/:id", async (req, res) => {
     { $set: { status: req.body.status } }
   );
   res.send("Status Updated");
-});
-
-app.listen(3000, () => {
-  console.log("Server running on http://localhost:3000");
 });
 
 
@@ -133,8 +137,9 @@ function update() {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ status: st.value })
-  }).then(r => r.text())
-    .then(msg => alert(msg));
+  })
+  .then(r => r.text())
+  .then(msg => alert(msg));
 }
 </script>
 

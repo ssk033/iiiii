@@ -37,12 +37,20 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 let col;
+const url = "mongodb://127.0.0.1:27017";
 
-// MongoDB Connection
-MongoClient.connect("mongodb://127.0.0.1:27017")
+// MongoDB Connection (Better Practice)
+MongoClient.connect(url)
   .then(client => {
-    col = client.db("startupDB").collection("ideas");
     console.log("MongoDB Connected");
+    col = client.db("startupDB").collection("ideas");
+
+    app.listen(3000, () => {
+      console.log("Server running on http://localhost:3000");
+    });
+  })
+  .catch(err => {
+    console.log("MongoDB Connection Error:", err.message);
   });
 
 // Load HTML Page
@@ -69,10 +77,6 @@ app.get("/ideas/edtech", async (req, res) => {
     funding: { $gt: 500000 }
   }).toArray();
   res.json(data);
-});
-
-app.listen(3000, () => {
-  console.log("Server running on http://localhost:3000");
 });
 
 

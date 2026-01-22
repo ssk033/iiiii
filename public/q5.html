@@ -9,7 +9,7 @@
 
 <script>
 const pluralize = (noun, num) =>
-  num + " " + (num == 1 ? noun : noun + "s");
+  num + " " + (num == 1 ? noun : noun+"s");
 
 const show = () =>
   output.innerText = pluralize(n.value, c.value);
