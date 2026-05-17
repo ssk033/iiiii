@@ -1,0 +1,49 @@
+#include <stdio.h>
+#include <unistd.h>
+int main() {
+    // create hard link
+    link("file.txt", "hardlink.txt");
+    // create soft link
+    symlink("file.txt", "softlink.txt");
+    printf("Hard link and Soft link created\n");
+    return 0;
+}
+//then cc <4a.c> 
+//./a.out
+//you should see the hard link and soft link created
+
+PART-b
+
+1.
+nano echoall.c
+2.
+#include <stdio.h>
+int main(int argc, char *argv[]) {
+    for (int i = 0; i < argc; i++) {
+        printf("argv[%d] = %s\n", i, argv[i]);
+    }
+    return 0;
+}
+3.
+cc echoall.c -o echoall
+4.
+nano interpreter.sh
+5.
+#!/bin/sh
+./echoall ARG_FROM_INTERPRETER $1
+6.
+chmod +x interpreter.sh
+7.
+nano parent.c
+8.
+#include <stdio.h>
+#include <unistd.h>
+int main() {
+    if (fork() == 0) {
+        execl("./interpreter.sh", "interpreter.sh", "ARG1", NULL);
+    }
+    return 0;
+}
+9.
+compile parent
+10.execute

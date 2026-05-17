@@ -1,0 +1,40 @@
+#include <stdio.h>
+#include <sys/stat.h>
+int main() {
+    struct stat s;
+    stat("file.txt", &s);
+    printf("File Size: %ld bytes\n", s.st_size);
+    printf("Inode Number: %ld\n", s.st_ino);
+    printf("Number of Links: %ld\n", s.st_nlink);
+    printf("User ID: %d\n", s.st_uid);
+    printf("Group ID: %d\n", s.st_gid);
+    printf("Block Size: %ld\n", s.st_blksize);
+    return 0;
+}
+//create a file called file.txt and write the following text:
+//Hello, World!
+//then cc <q2a.c> 
+//./a.out
+//you should see the file size, inode number, number of links, user id, group id, and block size.
+
+PART-b
+
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/wait.h>
+int mysystem(char *cmd) {
+    int pid = fork();
+    if (pid == 0) {  // child
+        execl("/bin/sh", "sh", "-c", cmd, NULL);
+    } else {         // parent
+        wait(NULL);
+    }
+    return 0;
+}
+int main() {
+    mysystem("ls");
+    return 0;
+}
+//then cc <2b.c> 
+//./a.out
+//you should see the output of the ls command.

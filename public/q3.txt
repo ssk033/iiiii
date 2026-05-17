@@ -1,0 +1,46 @@
+#include <stdio.h>
+#include <dirent.h>
+#include <sys/stat.h>
+#include <unistd.h>
+int main() {
+    struct dirent *d;
+    struct stat s;
+    DIR *dir = opendir(".");
+    while ((d = readdir(dir)) != NULL) {
+        stat(d->d_name, &s);
+        if (S_ISREG(s.st_mode) && s.st_size == 0) {
+            remove(d->d_name);
+            printf("Deleted: %s\n", d->d_name);
+        }
+    }
+    closedir(dir);
+    return 0;
+}
+//then cc <3a.c>  create one empty file called empty.txt
+//./a.out
+//you should see the empty.txt file deleted.
+
+PART-b
+
+#include <stdio.h>
+#include <dirent.h>
+#include <sys/stat.h>
+int main() {
+    struct dirent *d;
+    struct stat s;
+    DIR *dir = opendir(".");
+    while ((d = readdir(dir)) != NULL) {
+        stat(d->d_name, &s);
+        printf("%ld ", s.st_ino);      // inode
+        printf("%ld ", s.st_nlink);    // links
+        printf("%d ", s.st_uid);       // user id
+        printf("%ld ", s.st_size);     // size
+        printf("%s\n", d->d_name);     // file name
+    }
+    closedir(dir);
+    return 0;
+}
+//then cc <3b.c> 
+//./a.out
+//you should see the inode, links, user id, size, and file name of 
+each file in the current directory.

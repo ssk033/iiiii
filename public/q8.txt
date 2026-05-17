@@ -1,0 +1,97 @@
+#include <stdio.h>
+#include <sys/stat.h>
+#include <stdlib.h>
+int main(int argc, char *argv[]) {
+    struct stat s;
+    if (argc != 2) {
+        printf("Usage: %s filename\n", argv[0]);
+        exit(1);
+    }
+    if (stat(argv[1], &s) < 0) {
+        perror("stat");
+        exit(1);
+    }
+    if (S_ISREG(s.st_mode))
+        printf("Regular file\n");
+    else if (S_ISDIR(s.st_mode))
+        printf("Directory\n");
+    else if (S_ISCHR(s.st_mode))
+        printf("Character device\n");
+    else if (S_ISBLK(s.st_mode))
+        printf("Block device\n");
+    else if (S_ISFIFO(s.st_mode))
+        printf("FIFO (pipe)\n");
+    else if (S_ISLNK(s.st_mode))
+        printf("Symbolic link\n");
+    else if (S_ISSOCK(s.st_mode))
+        printf("Socket\n");
+    else
+        printf("Unknown file type\n");
+    return 0;
+}
+//then cc <8a.c> 
+//./a.out file.txt
+//you should see the file type.
+//if the file is a regular file, it will print "Regular file".
+//if the file is a directory, it will print "Directory".
+//if the file is a character device, it will print "Character 
+device".
+//if the file is a block device, it will print "Block device".
+//if the file is a FIFO (pipe), it will print "FIFO (pipe)".
+//if the file is a symbolic link, it will print "Symbolic link".
+//if the file is a socket, it will print "Socket".
+//if the file is an unknown file type, it will print "Unknown file 
+type".
+
+PART-b
+
+1.
+nano check.c
+#include <stdio.h>
+#include <unistd.h>
+int main(int argc, char *argv[]) {
+    if (argc != 2) {
+        printf("Usage: %s filename\n", argv[0]);
+        return 1;
+    }
+    if (access(argv[1], F_OK) == 0)
+        printf("File exists\n");
+    else
+        printf("File does not exist\n");
+    if (access(argv[1], R_OK) == 0)
+        printf("Readable\n");
+    if (access(argv[1], W_OK) == 0)
+        printf("Writable\n");
+    if (access(argv[1], X_OK) == 0)
+        printf("Executable\n");
+    return 0;
+}
+2.
+cc check.c -o check
+3.
+nano parent.c
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/wait.h>
+int main() {
+    int pid = fork();
+    if (pid == 0) {
+        // Child process
+        printf("Child PID: %d, Parent PID: %d\n", getpid(), 
+getppid());
+        execl("./check", "check", "file.txt", NULL);
+    } 
+    else {
+        // Parent process
+        printf("Parent PID: %d, Child PID: %d\n", getpid(), pid);
+        wait(NULL);   // wait for child
+        printf("Child finished execution\n");
+    }
+    return 0;
+}
+4.
+cc parent.c -o parent
+//then cc <parent.c> 
+//./parent
+//you should see the parent and child PIDs and the file exists, 
+readable, writable, and executable.

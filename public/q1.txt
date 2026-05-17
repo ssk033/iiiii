@@ -1,0 +1,43 @@
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+int main() {
+    int fd = open("file.txt", O_RDONLY);
+    char ch;
+    off_t size = lseek(fd, 0, SEEK_END);
+    for (int i = size - 1; i >= 0; i--) {
+        lseek(fd, i, SEEK_SET);
+        read(fd, &ch, 1);
+        write(1, &ch, 1);
+    }
+    close(fd);
+    return 0;
+}
+//create a file called file.txt and write the following text:
+//Hello, World!
+//then cc <q1a.c> 
+//./a.out
+//you should see the text printed in reverse order.
+
+PART-b
+
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+int main() {
+    int fd = open("file.txt", O_RDONLY);
+    char ch;
+    if (fork() == 0) {   // child
+        read(fd, &ch, 1);
+        printf("Child read: %c\n", ch);
+    } else {             // parent
+        sleep(1);  // ensure child runs first
+        read(fd, &ch, 1);
+        printf("Parent read: %c\n", ch);
+    }
+    return 0;
+}
+//create a file called file.txt and write the following text:
+//Hello, World!
+//then cc <q1b.c> 
+//./a.out

@@ -1,0 +1,72 @@
+#include <stdio.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+int main() {
+    mode_t new_umask = 0022;
+    mode_t old_umask;
+    const char *file_path = "file.txt";
+    mode_t new_mode = 0644;
+    // Set new umask and get old umask
+    old_umask = umask(new_umask);
+    printf("Old umask: %03o, New umask: %03o\n", old_umask, 
+new_umask);
+    // Create file with full permissions
+    int fd = open(file_path, O_CREAT | O_WRONLY, 0777);
+    if (fd == -1) {
+        perror("open");
+        return 1;
+    }
+    close(fd);
+    // Change permissions using chmod
+    if (chmod(file_path, new_mode) == -1) {
+        perror("chmod");
+        return 1;
+    }
+    printf("Permissions of %s changed to %03o\n", file_path, 
+new_mode);
+    return 0;
+}
+//then cc <9a.c> 
+//./a.out
+//you should see the old umask, new umask, and the permissions of 
+the file changed to 0644. 
+
+PART-b
+
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+int main() {
+    int fd = open("file.txt", O_RDONLY);
+    char buf[21];
+    int n;
+    if (fd < 0) {
+        perror("open");
+        return 1;
+    }
+    // i. Read first 20 characters
+    n = read(fd, buf, 20);
+    buf[n] = '\0';
+    printf("First 20 chars: %s\n", buf);
+    // ii. Seek to 10th byte from beginning
+    lseek(fd, 10, SEEK_SET);
+    n = read(fd, buf, 20);
+    buf[n] = '\0';
+    printf("From 10th byte: %s\n", buf);
+    // iii. Seek 10 bytes ahead from current position
+    lseek(fd, 10, SEEK_CUR);
+    n = read(fd, buf, 20);
+    buf[n] = '\0';
+    printf("After skipping 10 bytes: %s\n", buf);
+    // iv. Display file size
+    off_t size = lseek(fd, 0, SEEK_END);
+    printf("File size: %ld bytes\n", size);
+    close(fd);
+    return 0;
+}
+//then cc <9b.c> 
+//./a.out
+//you should see the first 20 characters, the characters from the 
+10th byte, the characters after skipping 10 bytes, and the file 
+size
