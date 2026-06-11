@@ -4,13 +4,13 @@
 int main() {
     int fd = open("file.txt", O_RDWR | O_APPEND);
     char buf[100];
-    int n = 5;  // number of characters to read
-    // read n characters from beginning
+    int n = 5;  
+
     lseek(fd, 0, SEEK_SET);
     read(fd, buf, n);
-    // duplicate fd to STDOUT (1)
+   
     dup2(fd, 1);
-    // write back (append)
+    
     write(1, buf, n);
     close(fd);
     return 0;
@@ -24,35 +24,46 @@ PART-b
 #include <stdio.h>
 #include <fcntl.h>
 #include <unistd.h>
-int main() {
+
+int main()
+{
     int fd = open("file.txt", O_RDWR);
     struct flock f;
-    // Define last 100 bytes region
-    f.l_type = F_WRLCK;       // check for write lock
+
+    f.l_type = F_WRLCK;
     f.l_whence = SEEK_END;
     f.l_start = -100;
     f.l_len = 100;
-    // Check if locked
+
     fcntl(fd, F_GETLK, &f);
-    if (f.l_type != F_UNLCK) {
+
+    if (f.l_type != F_UNLCK)
+    {
         printf("Region is locked by PID: %d\n", f.l_pid);
-    } else {
+    }
+    else
+    {
         printf("Region is not locked. Locking now...\n");
-        // Apply lock
+
         f.l_type = F_WRLCK;
         fcntl(fd, F_SETLK, &f);
-        // Move to last 50 bytes
+
         lseek(fd, -50, SEEK_END);
+
         char buf[51];
         read(fd, buf, 50);
         buf[50] = '\0';
+
         printf("Last 50 bytes: %s\n", buf);
-        // Unlock
+
         f.l_type = F_UNLCK;
         fcntl(fd, F_SETLK, &f);
+
         printf("Region unlocked\n");
     }
+
     close(fd);
+
     return 0;
 }
 //then cc <6b.c> 

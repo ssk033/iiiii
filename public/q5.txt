@@ -4,12 +4,12 @@
 int main() {
     struct stat s;
     struct utimbuf t;
-    // get time of source file
+   
     stat("file.txt", &s);
-    // assign times
-    t.actime = s.st_atime;   // access time
-    t.modtime = s.st_mtime;  // modification time
-    // set time to destination file
+    
+    t.actime = s.st_atime;   
+    t.modtime = s.st_mtime;  
+  
     utime("file2.txt", &t);
     printf("Time copied successfully\n");
     return 0;
@@ -43,3 +43,28 @@ int main() {
 //then cc <5b.c> 
 //./a.out and press Ctrl+C
 //you should see the SIGINT caught message.
+part b another way 
+
+#include <stdio.h>
+#include <signal.h>
+#include <unistd.h>
+
+void handler(int sig)
+{
+    printf("SIGINT caught\n");
+
+    signal(SIGINT, SIG_DFL);   // default action wapas
+}
+
+int main()
+{
+    signal(SIGINT, handler);
+
+    while(1)
+    {
+        printf("Running...\n");
+        sleep(2);
+    }
+
+    return 0;
+}
