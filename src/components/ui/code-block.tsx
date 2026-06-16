@@ -5,7 +5,7 @@ import { IconCheck, IconCopy } from "@tabler/icons-react";
 
 type CodeBlockProps = {
   language: string;
-  filename: string;
+  filename?: string;
   highlightLines?: number[];
 } & (
   | {
@@ -25,7 +25,7 @@ type CodeBlockProps = {
 
 export const CodeBlock = ({
   language,
-  filename,
+  filename = "",
   code,
   highlightLines = [],
   tabs = [],
@@ -53,62 +53,76 @@ export const CodeBlock = ({
     : highlightLines;
 
   return (
-    <div className="relative w-full rounded-lg bg-slate-900 p-4 font-mono text-sm">
-      <div className="flex flex-col gap-2">
-        {tabsExist && (
-          <div className="flex overflow-x-auto">
+    <div className="code-block-component relative w-full overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--code-bg)] font-mono text-sm">
+      <div className="flex items-center justify-between border-b border-[var(--border)] px-3 py-2">
+        {tabsExist ? (
+          <div className="flex overflow-x-auto gap-1">
             {tabs.map((tab, index) => (
               <button
                 key={index}
+                type="button"
                 onClick={() => setActiveTab(index)}
-                className={`px-3 !py-2 text-xs transition-colors font-sans ${
+                className={`rounded px-2 py-1 text-xs transition-colors font-sans ${
                   activeTab === index
-                    ? "text-white"
-                    : "text-zinc-400 hover:text-zinc-200"
+                    ? "bg-[var(--surface-muted)] text-[var(--text-primary)]"
+                    : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
                 }`}
               >
                 {tab.name}
               </button>
             ))}
           </div>
+        ) : (
+          <span className="text-xs font-medium text-[var(--text-muted)]">
+            {filename || activeLanguage}
+          </span>
         )}
-        {!tabsExist && filename && (
-          <div className="flex justify-between items-center py-2">
-            <div className="text-xs text-zinc-400">{filename}</div>
-            <button
-              onClick={copyToClipboard}
-              className="flex items-center gap-1 text-xs text-zinc-400 hover:text-zinc-200 transition-colors font-sans"
-            >
-              {copied ? <IconCheck size={14} /> : <IconCopy size={14} />}
-            </button>
-          </div>
-        )}
+        <button
+          type="button"
+          onClick={copyToClipboard}
+          aria-label={copied ? "Copied" : "Copy code"}
+          className="flex items-center gap-1 rounded-md px-2 py-1 text-xs text-[var(--text-muted)] transition-colors hover:bg-[var(--surface-muted)] hover:text-[var(--text-primary)]"
+        >
+          {copied ? (
+            <>
+              <IconCheck size={14} stroke={1.75} className="text-emerald-400" />
+              <span className="font-sans text-emerald-400">Copied</span>
+            </>
+          ) : (
+            <>
+              <IconCopy size={14} stroke={1.75} />
+              <span className="font-sans">Copy</span>
+            </>
+          )}
+        </button>
       </div>
-      <SyntaxHighlighter
-        language={activeLanguage}
-        style={atomDark}
-        customStyle={{
-          margin: 0,
-          padding: 0,
-          background: "transparent",
-          fontSize: "0.875rem", // text-sm equivalent
-        }}
-        wrapLines={true}
-        showLineNumbers={true}
-        lineProps={(lineNumber) => ({
-          style: {
-            backgroundColor: activeHighlightLines.includes(lineNumber)
-              ? "rgba(255,255,255,0.1)"
-              : "transparent",
-            display: "block",
-            width: "100%",
-          },
-        })}
-        PreTag="div"
-      >
-        {String(activeCode)}
-      </SyntaxHighlighter>
+      <div className="p-3">
+        <SyntaxHighlighter
+          language={activeLanguage}
+          style={atomDark}
+          customStyle={{
+            margin: 0,
+            padding: 0,
+            background: "transparent",
+            fontSize: "0.8125rem",
+            fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+          }}
+          wrapLines={true}
+          showLineNumbers={true}
+          lineProps={(lineNumber) => ({
+            style: {
+              backgroundColor: activeHighlightLines.includes(lineNumber)
+                ? "rgba(255,255,255,0.08)"
+                : "transparent",
+              display: "block",
+              width: "100%",
+            },
+          })}
+          PreTag="div"
+        >
+          {String(activeCode)}
+        </SyntaxHighlighter>
+      </div>
     </div>
   );
 };
-
