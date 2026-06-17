@@ -303,3 +303,7 @@ docker exec -it sclab-s2-mysql mysql -u root --password=CowSaysMoo -e "SELECT * 
 Challenge token:
 fd8e9a29dab791197115b58061b215594211e72c1680f1eacc50b0394133a09f
 
+https://chatgpt.com/share/6a322aac-0c0c-83ee-a67a-b98b9bb2a7d5
+
+https://chatgpt.com/share/6a322ac0-0378-83ee-9a57-5674c86f214d
+
